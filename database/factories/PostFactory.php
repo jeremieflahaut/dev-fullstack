@@ -20,7 +20,8 @@ class PostFactory extends Factory
         return [
             'title' => fake()->sentence,
             'content' => fake()->paragraphs(3, true),
-            'image_path' => 'images/' . fake()->image(public_path('images'), 400, 300, null, false)
+            'image_path' => 'images/' . fake()->image(public_path('images'), 400, 300, null, false),
+            'featured' => fake()->boolean()
         ];
     }
 }

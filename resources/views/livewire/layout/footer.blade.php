@@ -3,7 +3,7 @@
         <a href="{{ route('home') }}" class="d-flex align-items-center mb-3 link-dark text-decoration-none">
             <img src="{{ asset('images/logo.jpg') }}" alt="Logo" width="120">
         </a>
-        <p class="text-muted">dev-fullstack© 2023</p>
+        <p class="text-muted">© dev-fullstack 2023</p>
     </div>
 
     <div class="col"></div>

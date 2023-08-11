@@ -13,6 +13,8 @@ class Post extends Model
 
     protected $fillable = ['title', 'content'];
 
+    protected $casts = ['featured' => 'boolean'];
+
     /**
      * @return BelongsToMany
      */

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\{AuthController, PostController};
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +18,13 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::resource('articles', \App\Http\Controllers\PostController::class)
+Route::resource('articles', PostController::class)
     ->parameters(['articles' => 'slug',])
     ->names('posts');
+
+//AUTH
+Route::get('/login', [AuthController::class, 'login'])->name('login');
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth')->name('dashboard');
+

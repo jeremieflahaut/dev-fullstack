@@ -1,11 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
-
     <div class="container my-5">
         <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg">
             <div class="col-lg-7 p-3 p-lg-5 pt-lg-3">
-                <h1 class="display-6 fw-bold lh-1">Bienvenue sur le Blog du Dev Fullstack</h1>
+                <h1 class="display-6 fw-bold lh-1">Bienvenue sur le Blog<br /> du Dev FullStack</h1>
                 <p class="lead">Je suis développeur web fullstack avec une expertise dans la création d'applications performantes. Passionné par Laravel, j'ai acquis une solide expérience dans la conception d'applications web robustes et évolutives en utilisant cette technologie.</p>
                 <p class="lead">Basé pret d'Antibes et Sophia-Antipolis (06), je combine ma passion pour le développement avec une approche créative pour offrir des solutions innovantes. Mon objectif est de créer des expériences utilisateur exceptionnelles grâce à des technologies modernes et des meilleures pratiques.</p>
                 <p class="lead">À travers ce blog, je partage des tutoriels et des conseils pour aider les développeurs à améliorer leurs compétences et à créer des applications de qualité. J'espère que vous trouverez ici des ressources inspirantes pour votre parcours de développeur web.</p>
@@ -14,7 +13,7 @@
                 </div>
             </div>
             <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
-                <img class="rounded-lg-3" src="{{ asset('images/logo.png') }}" alt="" width="720">
+                <img class="rounded-lg-3" src="{{ asset('images/logo.jpg') }}" alt="" width="720">
             </div>
         </div>
     </div>
@@ -37,10 +36,10 @@
                 </div>
                 <div class="col-md-4">
                     <div class="feature-icon">
-                        <i class="fa-regular fa-comment fa-5x"></i>
+                        <i class="fa-solid fa-globe fa-5x"></i>
                     </div>
-                    <h3 class="mt-3">OpenAI</h3>
-                    <p>L'intégration d'OpenAI apporte une dimension innovante à mon blog. L'intelligence artificielle génère du contenu pertinent pour mes lecteurs, enrichissant ainsi l'expérience des visiteurs avec des informations captivantes et précieuses.</p>
+                    <h3 class="mt-3">API Intégrées</h3>
+                    <p>Mon blog tire pleinement parti des API en intégrant des services externes. Les API offrent des fonctionnalités étendues, de la récupération de données en temps réel à l'interactivité. Grâce à elles, je peux fournir des informations actualisées et interactives à mes visiteurs, rendant l'expérience utilisateur encore plus immersive.</p>
                 </div>
             </div>
         </div>

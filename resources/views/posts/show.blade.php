@@ -2,6 +2,6 @@
 
 @section('content')
     <div class="container">
-        <livewire:post-show :post="$post" />
+        <livewire:posts.show :post="$post" />
     </div>
 @endsection

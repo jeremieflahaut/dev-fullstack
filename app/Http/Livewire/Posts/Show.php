@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Http\Livewire\Posts;
 
 use App\Models\Post;
 use Livewire\Component;
 
-class PostShow extends Component
+class Show extends Component
 {
-    public $post;
+    public Post $post;
 
     public function mount($post)
     {
@@ -16,6 +16,6 @@ class PostShow extends Component
 
     public function render()
     {
-        return view('livewire.post-show');
+        return view('livewire.posts.show');
     }
 }

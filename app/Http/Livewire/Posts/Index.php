@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Http\Livewire\Posts;
 
 use App\Models\Post;
 use Illuminate\Contracts\{View\Factory, View\View};
 use Illuminate\Foundation\Application;
 use Livewire\Component;
 
-class PostList extends Component
+class Index extends Component
 {
     public int $perPage = 5;
 
@@ -26,6 +26,6 @@ class PostList extends Component
     public function render(): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
     {
         $posts = Post::with('categories')->latest()->take($this->perPage)->get();
-        return view('livewire.post-list', compact('posts'));
+        return view('livewire.posts.index', compact('posts'));
     }
 }

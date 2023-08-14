@@ -14,6 +14,6 @@
             <span class="badge bg-light text-dark">{{ $category->name }}</span>
         @endforeach
     </ul>
-    <img src="{{ asset($post->image_path) }}" alt="Article Image">
+    <img src="{{ asset($post->image_path) }}" alt="{{ $post->title }}" width="720">
     <p>{!! Illuminate\Support\Str::markdown($post->content) !!}</p>
 </div>

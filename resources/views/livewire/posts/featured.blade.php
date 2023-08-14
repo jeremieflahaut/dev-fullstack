@@ -9,7 +9,7 @@
             </div>
         </div>
         <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg">
-            <img class="rounded-lg-3" src="{{ asset($post->image_path) }}" alt="" width="720">
+            <img class="rounded-lg-3" src="{{ asset($post->image_path) }}" alt="{{ $post->title }}" width="720">
         </div>
     </div>
 </div>

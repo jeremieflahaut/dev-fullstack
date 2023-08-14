@@ -6,6 +6,7 @@
                     <div class="card-body d-flex flex-column">
                         <img src="{{ asset($post->image_path) }}" class="card-img-top" alt="Article Image">
                         <h5 class="card-title">{{ $post->title }}</h5>
+                        <p class="text-muted">Mise à jour le : {{ $post->updated_at->format('d/m/Y') }}</p>
                         <p class="card-text">{{ $post->limitedContent() }}</p>
                         <a href="{{ route('posts.show', $post->slug) }}"
                            class="btn btn-outline-danger mt-auto w-50 mx-auto">Lire la suite</a>

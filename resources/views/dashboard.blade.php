@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', 'Dashboard - Dev Fullstack')
+@section('meta_description', 'Dashboard')
+
 @section('content')
     <div class="container">
         <div class="row justify-content-center">

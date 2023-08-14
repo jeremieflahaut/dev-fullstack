@@ -19,6 +19,7 @@ class PostFactory extends Factory
     {
         return [
             'title' => fake()->sentence,
+            'description' => fake()->text(150),
             'content' => fake()->paragraphs(3, true),
             'image_path' => 'images/' . fake()->image(public_path('images'), 400, 300, null, false),
             'featured' => fake()->boolean()

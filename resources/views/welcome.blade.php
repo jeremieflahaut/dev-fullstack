@@ -1,5 +1,8 @@
 @extends('layouts.app')
 
+@section('title', 'Blog du Dev Fullstack : Astuces de développement, tutoriels Laravel et plus encore')
+@section('meta_description', 'Découvrez le Blog du Dev Fullstack, votre source d\'astuces de développement, de tutoriels sur Laravel et bien plus. Restez à jour avec les dernières tendances technologiques et améliorez vos compétences en développement web.')
+
 @section('content')
     <div class="container my-5">
         <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg">

@@ -39,7 +39,7 @@ class Post extends Model
      * @param int $length
      * @return string
      */
-    public function limitedContent(int $length = 100): string
+    public function limitedContent(int $length = 150): string
     {
         if (strlen($this->content) <= $length) {
             return $this->content;

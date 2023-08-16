@@ -49,7 +49,7 @@
                 "mandatoryCta": true /* Show the disabled accept button when mandatory on */
             });
         </script>
-        @if(App::environment('local'))
+        @if(App::environment('production'))
             <script type="text/javascript">
                 tarteaucitron.user.googletagmanagerId = '{{ env("GOOGLE_TAG_MANAGER_ID") }}';
                 (tarteaucitron.job = tarteaucitron.job || []).push('googletagmanager');

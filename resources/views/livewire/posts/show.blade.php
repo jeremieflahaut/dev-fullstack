@@ -9,11 +9,7 @@
 
     <h1>{{ $post->title }}</h1>
     <div class="text-muted">Mise à jour le : {{ $post->updated_at->format('d/m/Y') }}</div>
-    <ul>
-        @foreach ($post->categories as $category)
-            <span class="badge bg-light text-dark">{{ $category->name }}</span>
-        @endforeach
-    </ul>
+    <x-posts.categories :categories="$post->categories" />
     <img src="{{ asset($post->image_path) }}" alt="{{ $post->title }}" width="720">
     <p>{!! Illuminate\Support\Str::markdown($post->content) !!}</p>
 </div>

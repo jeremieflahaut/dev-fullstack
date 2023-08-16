@@ -10,11 +10,7 @@
                         <p class="card-text">{{ $post->limitedContent() }}</p>
                         <a href="{{ route('posts.show', $post->slug) }}"
                            class="btn btn-outline-danger mt-auto w-50 mx-auto">Lire la suite</a>
-                        <ul class="mt-3">
-                            @foreach ($post->categories as $category)
-                                <span class="badge bg-light text-dark">{{ $category->name }}</span>
-                            @endforeach
-                        </ul>
+                        <x-posts.categories :categories="$post->categories" />
                     </div>
                 </div>
             </div>

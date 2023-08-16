@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Factories\PostFactory;
+use Illuminate\Support\Facades\File;
 use App\{Models\Category, Models\Post, Models\User};
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -21,6 +23,14 @@ class DatabaseSeeder extends Seeder
         ]);
 
         if (!app()->isProduction()) {
+            $path = public_path(PostFactory::FOLDER);
+
+            if (!File::exists($path)) {
+                File::makeDirectory($path);
+            }
+
+            File::cleanDirectory($path);
+
             $categories = Category::factory(3)->create();
 
             Post::factory(50)->create()->each(function ($post) use ($categories) {

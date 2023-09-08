@@ -1,0 +1,18 @@
+name: CD
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to dev-fullstack.net
+      uses: appleboy/ssh-action@master
+      with:
+        key: ${{ secrets.SSH_KEY}}
+        host: ${{ secrets.SSH_HOST }}
+        port: ${{ secrets.SSH_PORT }}
+        username: ${{ secrets.SSH_USER }}
+        script: 'ls -alsh'

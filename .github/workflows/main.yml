@@ -15,4 +15,4 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         port: ${{ secrets.SSH_PORT }}
         username: ${{ secrets.SSH_USER }}
-        script: 'ls -alsh'
+        script: 'cd projects/dev-fullstack/app/html && ./server_deploy.sh'

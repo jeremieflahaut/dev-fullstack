@@ -14,5 +14,5 @@ jobs:
         key: ${{ secrets.SSH_KEY}}
         host: ${{ secrets.SSH_HOST }}
         port: ${{ secrets.SSH_PORT }}
-        username: ${{ secrets.SSH_PORT }}
+        username: ${{ secrets.SSH_USER }}
         script: 'ls -alsh'

@@ -1,8 +1,8 @@
 <div class="container">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('home') }}">Accueil</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('posts.index') }}">Articles</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('home') }}" class="link-danger">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('posts.index') }}" class="link-danger">Articles</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ $post->title }}</li>
         </ol>
     </nav>

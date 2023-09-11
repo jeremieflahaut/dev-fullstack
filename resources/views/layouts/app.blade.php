@@ -51,7 +51,7 @@
         </script>
         @if(App::environment('production'))
             <script type="text/javascript">
-                tarteaucitron.user.googletagmanagerId = '{{ env("GOOGLE_TAG_MANAGER_ID") }}';
+                tarteaucitron.user.googletagmanagerId = '{{ config("layout.google_tag_manager_id") }}';
                 (tarteaucitron.job = tarteaucitron.job || []).push('googletagmanager');
             </script>
         @endif

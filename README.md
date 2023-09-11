@@ -21,7 +21,7 @@ I've implemented CI/CD using GitHub Actions to automate the testing and deployme
 
 The CI/CD pipeline includes the following steps:
 
-- **laravel-tests:** The code is automatically built, and tests are run to ensure its integrity.
+- **tests:** The code is automatically built, and tests are run to ensure its integrity.
 
 - **deploy:** Once the code passes all tests, it is automatically deployed to the production server.
 

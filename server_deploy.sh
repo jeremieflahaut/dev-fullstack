@@ -15,7 +15,8 @@ sudo docker exec dev_fullstack_web php artisan down
     sudo docker exec dev_fullstack_web php artisan migrate --force
 
     # Clear cache
-    sudo docker exec dev_fullstack_web php artisan optimize
+    sudo docker exec dev_fullstack_web php artisan config:clear
+    sudo docker exec dev_fullstack_web php artisan route:clear
 
 # Exit maintenance mode
 sudo docker exec dev_fullstack_web php artisan up

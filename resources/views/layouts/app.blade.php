@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     @guest
-        <script src="js/tarteaucitron/tarteaucitron.js"></script>
+        <script src="/js/tarteaucitron/tarteaucitron.js"></script>
 
         <script type="text/javascript">
             tarteaucitron.init({

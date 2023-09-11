@@ -1,3 +1,5 @@
+[![Tests](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/test.yml/badge.svg)](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/test.yml)
+
 # My Personal Blog
 
 Welcome to my personal blog! This GitHub repository contains the source code of my blog, as well as the articles I've written.

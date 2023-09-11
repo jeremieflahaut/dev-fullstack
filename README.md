@@ -6,7 +6,7 @@ Welcome to my personal blog! This GitHub repository contains the source code of 
 
 ## Technologies Used
 
-- Programming Language: Php8.2
+- Programming Language: PHP 8.2
 - Framework: Laravel
 - Database: Mysql
 

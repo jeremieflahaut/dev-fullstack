@@ -20,12 +20,9 @@ Route::middleware(['throttle:30,1'])->group(function () {
     Route::get('/mentions', function () { return view('mentions'); })->name('mentions');
     Route::get('/cookies', function () { return view('cookies'); })->name('cookies');
 
-
-
 //AUTH
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::get('/dashboard', function () { return view('dashboard'); })->middleware('auth')->name('dashboard');
-
 });
 
 

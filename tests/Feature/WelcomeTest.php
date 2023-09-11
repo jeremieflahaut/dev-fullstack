@@ -2,17 +2,17 @@
 
 use function Pest\Livewire\livewire;
 
-it('test welcome Page', function () {
+it('welcome page', function () {
     $response = $this->get('/');
     $response->assertOk();
 });
 
-it('see header', function() {
+it('see header component', function() {
     livewire(\App\Http\Livewire\Layout\Header::class)
         ->assertSee('Accueil');
 });
 
-it('see footer', function() {
+it('see footer component', function() {
     livewire(\App\Http\Livewire\Layout\Footer::class)
         ->assertSee('Accueil')
         ->assertSee('Mentions Légales')

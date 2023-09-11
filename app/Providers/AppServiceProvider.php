@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::preventLazyLoading(! $this->app->isProduction());
 
-        if (env('APP_ENV') === 'production') {
+        if ($this->app->isProduction()) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
     }

@@ -31,7 +31,19 @@ class DatabaseSeeder extends Seeder
                 File::makeDirectory($path);
             }
 
-            File::cleanDirectory($path);
+            $keepFile = '.gitkeep';
+
+            if (File::exists($path) && File::isDirectory($path)) {
+                $files = File::allFiles($path);
+
+                foreach ($files as $file) {
+                    $filename = $file->getFilename();
+
+                    if ($filename !== $keepFile) {
+                        File::delete($file->getPathname());
+                    }
+                }
+            }
 
             $categories = Category::factory(3)->create();
 

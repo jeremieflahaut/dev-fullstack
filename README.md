@@ -1,6 +1,5 @@
-[![Tests](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/test.yml/badge.svg)](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/test.yml)
-
-![Coverage](https://github.com/jeremieflahaut/dev-fullstack/blob/image-data/coverage.svg?raw=true&sanitize=true&branch=image-data)
+[![Tests](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/tests.yml/badge.svg)](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/tests.yml)
+![Coverage](https://github.com/jeremieflahaut/dev-fullstack/blob/image-data/coverage.svg?raw=true&sanitize=true&branch=badges)
 
 # My Personal Blog
 

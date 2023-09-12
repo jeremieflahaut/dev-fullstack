@@ -16,6 +16,7 @@ Welcome to my personal blog! This GitHub repository contains the source code of 
 
 - Display of articles
 - Article categorization system
+- GDPR Cookie Consent with [Tarteaucitron.js](https://github.com/AmauriC/Tarteaucitron.js)
 
 ## Continuous Integration and Deployment (CI/CD)
 

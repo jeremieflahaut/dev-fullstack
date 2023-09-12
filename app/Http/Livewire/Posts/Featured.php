@@ -14,7 +14,7 @@ class Featured extends Component
     {
         $post = Post::where('featured', true)->inRandomOrder()->first();
 
-        if(!$post) {
+        if (! $post) {
             $post = Post::latest()->first();
         }
 

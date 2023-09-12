@@ -15,9 +15,6 @@ class Post extends Model
 
     protected $casts = ['featured' => 'boolean'];
 
-    /**
-     * @return BelongsToMany
-     */
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class);
@@ -35,10 +32,6 @@ class Post extends Model
         });
     }
 
-    /**
-     * @param int $length
-     * @return string
-     */
     public function limitedContent(int $length = 150): string
     {
         if (strlen($this->content) <= $length) {
@@ -58,6 +51,6 @@ class Post extends Model
             }
         }
 
-        return $truncatedContent . (strlen($this->content) > $length ? '...' : '');
+        return $truncatedContent.(strlen($this->content) > $length ? '...' : '');
     }
 }

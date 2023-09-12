@@ -2,12 +2,13 @@
 
 namespace App\Http\Livewire\Auth;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Login extends Component
 {
     public $email;
+
     public $password;
 
     protected $rules = [

@@ -40,6 +40,7 @@ class PostController extends Controller
     public function show(string $slug): View|Application|Factory|\Illuminate\Contracts\Foundation\Application
     {
         $post = Post::where('slug', $slug)->firstOrFail();
+
         return view('posts.show', compact('post'));
     }
 

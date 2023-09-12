@@ -1,5 +1,6 @@
 [![Tests](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/tests.yml/badge.svg)](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/tests.yml)
 ![Coverage](https://github.com/jeremieflahaut/dev-fullstack/blob/badges/coverage.svg?raw=true&sanitize=true&branch=badges)
+[![Deploy](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/deploy.yml/badge.svg)](https://github.com/jeremieflahaut/dev-fullstack/actions/workflows/deploy.yml)
 
 # My Personal Blog
 

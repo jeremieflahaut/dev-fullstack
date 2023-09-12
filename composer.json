@@ -20,6 +20,9 @@
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
+        "pestphp/pest": "^2.18",
+        "pestphp/pest-plugin-livewire": "^2.1",
+        "pestphp/pest-plugin-watch": "^2.0",
         "phpunit/phpunit": "^10.1",
         "spatie/laravel-ignition": "^2.0"
     },
@@ -48,7 +51,9 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
-        ]
+        ],
+        "test": "XDEBUG_MODE=coverage ./vendor/bin/pest --coverage-html coverage",
+        "test-watch": "XDEBUG_MODE=coverage ./vendor/bin/pest --coverage-html coverage --watch"
     },
     "extra": {
         "laravel": {

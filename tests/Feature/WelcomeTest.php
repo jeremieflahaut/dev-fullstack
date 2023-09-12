@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Livewire\Layout\Footer;
 use App\Http\Livewire\Layout\Header;
 

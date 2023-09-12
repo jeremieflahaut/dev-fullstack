@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Livewire\Posts\Index;
 use App\Http\Livewire\Posts\Show;
 use App\Models\Post;

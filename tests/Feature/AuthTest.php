@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Livewire\Auth\Login;
 use App\Http\Livewire\Auth\LogoutConfirmationModal;
 use App\Models\User;

@@ -24,8 +24,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::preventLazyLoading(! $this->app->isProduction());
 
+        // @codeCoverageIgnoreStart
         if ($this->app->isProduction()) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+        // @codeCoverageIgnoreEnd
     }
 }

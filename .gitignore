@@ -6,8 +6,10 @@
 /public/images
 /public/sitemap.xml
 /storage/*.key
+/storage/database/database.sqlite
 /vendor
 /coverage
+/output
 .env
 .env.backup
 .env.production
@@ -17,6 +19,7 @@ Homestead.yaml
 auth.json
 npm-debug.log
 yarn-error.log
+clover.xml
 /.fleet
 /.idea
 /.vscode

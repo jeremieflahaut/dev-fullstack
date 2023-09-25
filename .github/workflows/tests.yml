@@ -15,6 +15,8 @@ jobs:
         php-version: '8.2'
 
     - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
 
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
@@ -33,6 +35,9 @@ jobs:
         mkdir -p database
         touch database/database.sqlite
 
+    - name: Launch Pint inspection
+      run: vendor/bin/pint
+
     - name: Execute tests (Unit and Feature tests) via Pest
       env:
         DB_CONNECTION: sqlite
@@ -45,7 +50,7 @@ jobs:
         coverage_badge_path: output/coverage.svg
         push_badge: false
 
-    - name: Git push to image-data branch
+    - name: Git push coverage badge to badges branch
       uses: peaceiris/actions-gh-pages@v3
       with:
         publish_dir: ./output

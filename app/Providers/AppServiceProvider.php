@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
@@ -22,8 +24,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Model::preventLazyLoading(! $this->app->isProduction());
 
+        // @codeCoverageIgnoreStart
         if ($this->app->isProduction()) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+        // @codeCoverageIgnoreEnd
     }
 }

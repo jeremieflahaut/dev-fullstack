@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Livewire\Layout\Footer;
 use App\Http\Livewire\Layout\Header;
+
 use function Pest\Livewire\livewire;
 
 it('welcome page', function () {
@@ -11,12 +14,12 @@ it('welcome page', function () {
         ->assertSeeLivewire(Footer::class);
 });
 
-it('see header component', function() {
+it('see header component', function () {
     livewire(Header::class)
         ->assertSee('Accueil');
 });
 
-it('see footer component', function() {
+it('see footer component', function () {
     livewire(Footer::class)
         ->assertSee('Accueil')
         ->assertSee('Mentions Légales')

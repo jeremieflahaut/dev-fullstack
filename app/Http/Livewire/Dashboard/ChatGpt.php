@@ -38,7 +38,7 @@ class ChatGpt extends Component
                     'model' => 'gpt-3.5-turbo',
                     'messages' => $this->messages,
                     'temperature' => 0.8,
-                    'max_tokens' => 1000,
+                    'max_tokens' => 4097,
                 ]);
 
                 $response = $response->toArray()['choices'][0]['message']['content'];

@@ -28,7 +28,7 @@ class GenerateSitemap extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $sitemap = Sitemap::create();
         Post::get()->each(function (Post $post) use ($sitemap) {

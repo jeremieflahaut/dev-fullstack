@@ -7,12 +7,14 @@
 /public/sitemap.xml
 /storage/*.key
 /storage/database/database.sqlite
+/storage/database/database-testing.sqlite
 /vendor
 /coverage
 /output
 .env
 .env.backup
 .env.production
+.env.testing
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml

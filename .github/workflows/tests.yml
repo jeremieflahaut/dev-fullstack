@@ -35,6 +35,9 @@ jobs:
         mkdir -p database
         touch database/database.sqlite
 
+    - name: Launch migration
+      run: php artisan migrate
+
     - name: Launch Pint inspection
       run: vendor/bin/pint
 

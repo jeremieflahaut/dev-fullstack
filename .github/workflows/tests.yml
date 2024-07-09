@@ -19,7 +19,7 @@ jobs:
         ref: ${{ github.head_ref }}
 
     - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      run: php -r "file_exists('.env') || copy('.env.example.testing', '.env');"
 
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -34,6 +34,7 @@ jobs:
       run: |
         mkdir -p database
         touch database/database.sqlite
+        pwd
 
     - name: Launch migrations
       run: php artisan migrate

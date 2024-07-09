@@ -1,12 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Category;
+use App\Models\Post;
+use App\Models\User;
 use Database\Factories\PostFactory;
-use Illuminate\Support\Facades\File;
-use App\{Models\Category, Models\Post, Models\User};
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
@@ -22,14 +26,26 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make(env('ADMIN_USER_PASSWORD', 'password')),
         ]);
 
-        if (!app()->isProduction()) {
+        if (! app()->isProduction()) {
             $path = public_path(PostFactory::FOLDER);
 
-            if (!File::exists($path)) {
+            if (! File::exists($path)) {
                 File::makeDirectory($path);
             }
 
-            File::cleanDirectory($path);
+            $keepFile = '.gitkeep';
+
+            if (File::exists($path) && File::isDirectory($path)) {
+                $files = File::allFiles($path);
+
+                foreach ($files as $file) {
+                    $filename = $file->getFilename();
+
+                    if ($filename !== $keepFile) {
+                        File::delete($file->getPathname());
+                    }
+                }
+            }
 
             $categories = Category::factory(3)->create();
 

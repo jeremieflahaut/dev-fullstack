@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Http\Livewire\Auth\Login;
 use App\Http\Livewire\Auth\LogoutConfirmationModal;
 use App\Models\User;
+
 use function Pest\Livewire\livewire;
 
 uses()->group('auth');
@@ -13,9 +16,9 @@ it('login page', function () {
         ->assertSeeLivewire(Login::class);
 });
 
-it('register user can login', function() {
+it('register user can login', function () {
     User::factory()->create([
-        'email' => 'test@test.fr'
+        'email' => 'test@test.fr',
     ]);
 
     livewire(Login::class)
@@ -25,9 +28,9 @@ it('register user can login', function() {
         ->assertRedirect('/dashboard');
 });
 
-it('not register user cannot login', function() {
+it('not register user cannot login', function () {
     User::factory()->create([
-        'email' => 'test@test.fr'
+        'email' => 'test@test.fr',
     ]);
 
     livewire(Login::class)
@@ -38,7 +41,7 @@ it('not register user cannot login', function() {
         ->assertNoRedirect();
 });
 
-it('register user can logout', function() {
+it('register user can logout', function () {
     livewire(LogoutConfirmationModal::class)
         ->call('logout')
         ->assertRedirect('/');
@@ -51,4 +54,3 @@ it('register user can logout', function() {
         ->call('closeModal')
         ->assertSet('isOpen', false);
 });
-

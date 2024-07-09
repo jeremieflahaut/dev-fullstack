@@ -15,9 +15,11 @@ jobs:
         php-version: '8.2'
 
     - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.head_ref }}
 
     - name: Copy .env
-      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+      run: php -r "file_exists('.env') || copy('.env.example.testing', '.env');"
 
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -32,6 +34,13 @@ jobs:
       run: |
         mkdir -p database
         touch database/database.sqlite
+        pwd
+
+    - name: Launch migrations
+      run: php artisan migrate
+
+    - name: Launch Pint inspection
+      run: vendor/bin/pint
 
     - name: Execute tests (Unit and Feature tests) via Pest
       env:
@@ -45,7 +54,7 @@ jobs:
         coverage_badge_path: output/coverage.svg
         push_badge: false
 
-    - name: Git push to image-data branch
+    - name: Git push coverage badge to badges branch
       uses: peaceiris/actions-gh-pages@v3
       with:
         publish_dir: ./output

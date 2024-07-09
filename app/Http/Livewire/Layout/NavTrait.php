@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Livewire\Layout;
 
 use Illuminate\Support\Collection;
@@ -10,18 +12,18 @@ trait NavTrait
         [
             'route' => 'home',
             'text' => 'Accueil',
-            'auth' => false
+            'auth' => false,
         ],
         [
             'route' => 'posts.index',
             'text' => 'Blog',
-            'auth' => false
+            'auth' => false,
         ],
         [
             'route' => 'dashboard',
             'text' => 'Dashboard',
-            'auth' => true
-        ]
+            'auth' => true,
+        ],
     ];
 
     protected Collection $navCollection;

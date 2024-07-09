@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Livewire\Dashboard;
 
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use OpenAI\Laravel\Facades\OpenAI;
 
@@ -17,8 +18,8 @@ class ChatGpt extends Component
         [
             'role' => 'system',
             'content' => 'Tu es rédacteur du blog personnel d\'un développeur full-stack laravel.
-            rajoute des retours à la ligne dans tes réponses'
-        ]
+            rajoute des retours à la ligne dans tes réponses',
+        ],
     ];
 
     public function fetchResponse()
@@ -27,17 +28,17 @@ class ChatGpt extends Component
 
         try {
 
-            if(!empty($this->prompt)) {
+            if (! empty($this->prompt)) {
                 $this->messages[] = [
                     'role' => 'user',
-                    'content' => $this->prompt
+                    'content' => $this->prompt,
                 ];
 
                 $response = OpenAI::chat()->create([
                     'model' => 'gpt-3.5-turbo',
                     'messages' => $this->messages,
                     'temperature' => 0.8,
-                    'max_tokens' => 1000,
+                    'max_tokens' => 4096,
                 ]);
 
                 $response = $response->toArray()['choices'][0]['message']['content'];
@@ -48,7 +49,7 @@ class ChatGpt extends Component
             }
 
         } catch (\Exception $e) {
-            $this->messages[] = ['role' => 'assistant', 'content' => 'Erreur lors de la récupération de la réponse : ' . $e->getMessage()];
+            $this->messages[] = ['role' => 'assistant', 'content' => 'Erreur lors de la récupération de la réponse : '.$e->getMessage()];
         }
     }
 
@@ -56,7 +57,4 @@ class ChatGpt extends Component
     {
         return view('livewire.dashboard.chat-gpt');
     }
-
-
-
 }

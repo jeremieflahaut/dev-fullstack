@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Livewire\Posts;
 
 use App\Models\Post;
@@ -14,7 +16,7 @@ class Featured extends Component
     {
         $post = Post::where('featured', true)->inRandomOrder()->first();
 
-        if(!$post) {
+        if (! $post) {
             $post = Post::latest()->first();
         }
 

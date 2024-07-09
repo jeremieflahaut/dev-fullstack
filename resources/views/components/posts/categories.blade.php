@@ -1,6 +1,6 @@
 @props(['categories'])
 
-<ul>
+<ul class="my-2">
     @foreach ($categories as $category)
         <li class="list-inline-item">
             <a href="#" class="badge bg-light text-dark text-decoration-none" title="Voir les articles dans la catégorie {{ $category->name }}">{{ $category->name }}</a>

@@ -2,15 +2,16 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const stackGroups = [
-  { label: 'backend', items: ['Laravel', 'PHP 8', 'MySQL', 'Redis', 'API REST'] },
-  { label: 'frontend', items: ['Vue / Nuxt', 'Inertia', 'TypeScript', 'Tailwind CSS'] },
-  { label: 'infra & outils', items: ['Docker', 'GitHub Actions', 'Traefik', 'Linux / WSL2'] },
+  { label: 'backend', items: ['Laravel', 'PHP 8', 'MySQL', 'MongoDB', 'Redis', 'API REST'] },
+  { label: 'frontend', items: ['JavaScript / TypeScript', 'Svelte'] },
+  { label: 'infra & outils', items: ['Docker', 'Git', 'GitHub Actions', 'Linux / WSL2'] },
+  { label: 'exploration', items: ['Claude Code', 'outillage dev assisté par IA'] },
 ];
 ---
 
 <BaseLayout
   title="À propos · dev-fullstack"
-  description="Qui est Jérémie Flahaut — développeur web fullstack Laravel : parcours, stack technique et side projects."
+  description="Jérémie Flahaut, développeur backend senior Laravel — 8 ans et plus à construire des applications qui durent. Stack, philosophie et side projects."
 >
   <article class="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:py-20">
     <p class="reveal font-mono text-sm text-accent" style="--d: 0s">~/a-propos</p>
@@ -21,26 +22,30 @@ const stackGroups = [
       Salut, moi c'est Jérémie<span class="text-accent">.</span>
     </h1>
 
-    <!-- TODO(jeremie) : relire et personnaliser ce texte — c'est une base à ajuster. -->
     <div class="reveal mt-8 space-y-5 leading-relaxed text-muted" style="--d: 0.16s">
       <p>
-        Je suis <strong class="font-medium text-fg">développeur web fullstack</strong>, salarié le
-        jour, bidouilleur le soir. Mon terrain de jeu principal :
-        <strong class="font-medium text-fg">Laravel</strong> et son écosystème, avec du
-        <strong class="font-medium text-fg">Vue</strong> ou de l'<strong
-          class="font-medium text-fg">Inertia</strong
-        > côté client, et du <strong class="font-medium text-fg">Docker</strong> pour faire tourner
-        tout ça proprement.
+        <strong class="font-medium text-fg">Développeur backend senior</strong> — plus de 8 ans à
+        construire et faire évoluer des applications avec
+        <strong class="font-medium text-fg">Laravel</strong> et
+        <strong class="font-medium text-fg">PHP</strong>, depuis Antibes.
       </p>
       <p>
-        Ce site est mon coin du web : un endroit pour documenter ce que j'apprends, garder une
-        trace des problèmes résolus, et partager des retours d'expérience concrets — en français,
-        parce que les ressources de qualité dans notre langue ne sont jamais de trop.
+        Depuis 2018, je développe une plateforme métier interne&nbsp;: fonctionnalités,
+        conception d'APIs, intégrations tierces, optimisation des performances et du modèle de
+        données, refactoring, tests et revues de code. Autonome sur tout le back-end, et côté
+        front quand un projet le demande — mais mon cœur de métier, c'est le backend.
       </p>
       <p>
-        Côté side projects : un tracker de portefeuille PEA (Laravel + Nuxt + un scraper Python),
-        des stacks Docker réutilisables, et ce blog. Tout tourne sur un petit VPS… sauf ce site,
-        généré statiquement et hébergé gratuitement sur GitHub Pages.
+        Mon approche est pragmatique&nbsp;: <em class="text-fg">je cherche ce qui marche, pas ce qui
+        fait joli sur le papier</em>. Ce qui m'intéresse&nbsp;: les applications qui durent, le code
+        qu'on peut reprendre trois ans plus tard sans avoir envie de tout réécrire, et les
+        architectures simples qui tiennent la charge.
+      </p>
+      <p>
+        À côté, quand l'envie est là, je passe en mode fullstack sur quelques side projects&nbsp;:
+        des petites apps Laravel, des stacks Docker réutilisables, et ce site — statique, généré
+        avec Astro, hébergé gratuitement sur GitHub Pages, et construit en pair-programming avec
+        Claude Code, dont j'explore l'usage.
       </p>
     </div>
 
@@ -75,7 +80,11 @@ const stackGroups = [
           href="https://github.com/jeremieflahaut"
           class="font-medium text-fg underline decoration-line underline-offset-4 transition-colors hover:text-accent"
           rel="me">GitHub</a
-        > pour le code, ou via le <a
+        > pour le code, sur <a
+          href="https://www.linkedin.com/in/jeremieflahaut-developpeur-fullstack-phpjavascript"
+          class="font-medium text-fg underline decoration-line underline-offset-4 transition-colors hover:text-accent"
+          rel="me">LinkedIn</a
+        > pour le reste, ou via le <a
           href="/rss.xml"
           class="font-medium text-fg underline decoration-line underline-offset-4 transition-colors hover:text-accent"
           >flux RSS</a

@@ -6,7 +6,7 @@ export async function GET(context) {
   return rss({
     title: 'dev-fullstack — blog',
     description:
-      "Blog d'un développeur web fullstack : Laravel, PHP, Vue, Docker — notes pratiques et retours d'expérience, en français.",
+      "Blog d'un développeur backend : Laravel, PHP, Docker — notes pratiques et retours d'expérience, en français.",
     site: context.site,
     items: posts.map((post) => ({
       title: post.data.title,

@@ -5,7 +5,7 @@ pubDate: 2026-06-11
 tags: ["meta"]
 ---
 
-Bonjour ! Je suis Jérémie, développeur web fullstack. Le jour, je travaille principalement avec **Laravel** ; le soir, je bricole des side projects — un tracker de portefeuille PEA, des stacks Docker, et maintenant ce site.
+Bonjour ! Je suis Jérémie, développeur backend. Je travaille principalement avec **Laravel**, et il m'arrive de bricoler des side projects — des stacks Docker, des petites apps Laravel, et maintenant ce site.
 
 ## Pourquoi un blog (de plus)
 
@@ -17,7 +17,7 @@ Trois raisons, honnêtement :
 
 ## Ce que vous trouverez ici
 
-Des notes concrètes et reproductibles, tirées de mon quotidien : Laravel et son écosystème, Docker pour le dev et la prod, un peu de Vue/Nuxt, et tout ce qui gravite autour du métier de dev fullstack.
+Des notes concrètes et reproductibles, tirées de mon quotidien : Laravel et son écosystème, Docker pour le dev et la prod, un peu de JavaScript, et tout ce qui gravite autour du métier de dev backend.
 
 Pas de calendrier de publication intenable — je publierai quand j'aurai quelque chose d'utile à partager.
 

@@ -41,7 +41,7 @@ const og = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://
 
   <text x="142" y="414" font-family="JetBrains Mono, monospace" font-size="33" fill="${muted}">Jérémie Flahaut — développeur web fullstack</text>
 
-  <text x="72" y="556" font-family="JetBrains Mono, monospace" font-size="26" fill="${muted}">laravel · vue · docker</text>
+  <text x="72" y="556" font-family="JetBrains Mono, monospace" font-size="26" fill="${muted}">laravel · php · docker</text>
   <text x="1128" y="556" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="26" fill="${accent}">www.dev-fullstack.net</text>
 
   <rect x="0.5" y="0.5" width="1199" height="629" fill="none" stroke="${fg}" stroke-opacity="0.1"/>

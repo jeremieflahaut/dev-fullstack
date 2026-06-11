@@ -1,0 +1,104 @@
+# Rédaction d'un article par l'agent Claude : Actions → « Rédaction d'article » → Run workflow.
+# L'agent rédige dans une branche article/<slug>, le job vérifie le build puis ouvre la PR.
+# Prérequis : secret CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token`) + GitHub App Claude installée.
+name: Rédaction d'article
+
+on:
+  workflow_dispatch:
+    inputs:
+      idee:
+        description: "Idée / inspiration de l'article"
+        required: true
+        type: string
+      notes:
+        description: "Notes optionnelles (angle, liens, contraintes)"
+        required: false
+        type: string
+
+# Une rédaction à la fois — les suivantes patientent.
+concurrency:
+  group: redaction
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  rediger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Configurer l'identité git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Rédiger l'article
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Tu es l'agent de rédaction du blog dev-fullstack.net.
+
+            1. Lis docs/redaction.md — le guide éditorial, dont les règles de
+               confidentialité sont non négociables.
+            2. Lis un ou deux articles existants dans src/content/blog/ pour
+               t'imprégner du style.
+            3. Rédige un article en français à partir de l'idée ci-dessous, dans le
+               respect strict du guide. Crée uniquement src/content/blog/<slug>.md
+               (slug kebab-case sans accents, unique) avec pubDate = date du jour
+               (commande `date +%F`).
+            4. Crée une branche article/<slug> (`git switch -c`), puis un commit
+               unique, conventionnel et en français :
+               - sujet : `feat(blog): <résumé court>` ;
+               - corps : 2 à 3 phrases résumant l'article (elles serviront de
+                 description à la pull request) ;
+               - jamais de trailer Co-Authored-By.
+            5. Ne pousse PAS la branche et n'ouvre pas de pull request : le workflow
+               s'en charge après avoir vérifié le build.
+
+            <idee>
+            ${{ inputs.idee }}
+            </idee>
+
+            <notes>
+            ${{ inputs.notes }}
+            </notes>
+          claude_args: |
+            --allowedTools "Read,Glob,Grep,Write,Edit,Bash(git:*),Bash(date:*)"
+
+      - name: Installer Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Vérifier le build
+        run: |
+          npm ci
+          npx astro check
+          npm run build
+
+      - name: Pousser la branche et ouvrir la PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="$(git branch --show-current)"
+          if [ "$BRANCH" = "main" ]; then
+            echo "::error::L'agent n'a pas créé de branche article/*."
+            exit 1
+          fi
+
+          # Garde-fou : seul un nouvel article est admis dans la branche.
+          HORS_PERIMETRE="$(git diff --name-only origin/main...HEAD | grep -v '^src/content/blog/' || true)"
+          if [ -n "$HORS_PERIMETRE" ]; then
+            echo "::error::Fichiers modifiés hors src/content/blog/ : $HORS_PERIMETRE"
+            exit 1
+          fi
+
+          git push -u origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" --fill

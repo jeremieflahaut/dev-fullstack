@@ -53,6 +53,21 @@ Contenu en markdown. Les blocs de code sont colorés (Shiki, thème clair/sombre
 
 **Publier = pousser sur `main`.** Le workflow `.github/workflows/deploy.yml` reconstruit et déploie le site.
 
+## Faire rédiger un article par l'agent IA
+
+Le dépôt embarque un agent de rédaction (Claude) piloté par GitHub Actions :
+
+1. **Actions → « Rédaction d'article » → Run workflow** : saisir l'idée, et des notes optionnelles (angle, liens, contraintes).
+2. L'agent lit le guide éditorial [`docs/redaction.md`](docs/redaction.md), rédige l'article dans `src/content/blog/`, puis le workflow vérifie que le site build et ouvre une **pull request**.
+3. Relecture sur la PR. Pour demander une retouche, commenter `@claude raccourcis l'introduction` : l'agent pousse la correction sur la branche (réservé au propriétaire du dépôt).
+4. **Merger la PR = publier** — le déploiement part automatiquement.
+
+Côté plomberie :
+
+- Workflows : `redaction-article.yml` (idée → article → PR), `claude.yml` (retouches `@claude`), `ci.yml` (build de contrôle sur les PR).
+- Prérequis (une fois) : secret `CLAUDE_CODE_OAUTH_TOKEN` (généré avec `claude setup-token`, abonnement Pro/Max) et GitHub App Claude installée sur le dépôt.
+- ⚠️ Dépôt public : l'idée saisie dans le formulaire est visible dans l'historique des runs — n'y mettre que ce qui peut finir public.
+
 ## Structure
 
 ```

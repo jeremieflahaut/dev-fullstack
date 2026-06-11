@@ -7,19 +7,34 @@ const latestPosts = (await getPublishedPosts()).slice(0, 3);
 
 const stack = [
   'Laravel',
-  'PHP',
-  'Vue / Nuxt',
-  'TypeScript',
-  'Tailwind CSS',
-  'Docker',
+  'PHP 8',
   'MySQL',
+  'MongoDB',
+  'Redis',
+  'API REST',
+  'Docker',
   'GitHub Actions',
 ];
+
+// php artisan inspire : citation aléatoire à chaque build, comme la vraie commande.
+const quotes = [
+  "« La simplicité est la sophistication suprême. »",
+  "« Savoir ne suffit pas, il faut appliquer. »",
+  "« L'obstacle devient le chemin. »",
+  "« Celui qui se contente de peu est riche. »",
+  "« Tout est toujours de la faute du DNS. »",
+  "« En prod, personne ne vous entend crier. »",
+  "« Il n'y a que deux problèmes difficiles : l'invalidation de cache et nommer les choses. »",
+  "« Le code legacy, c'est du code qui a survécu. »",
+  "« Ça marche sur ma machine. »",
+  "« Le meilleur code est celui qu'on n'écrit pas. »",
+];
+const inspire = quotes[Math.floor(Math.random() * quotes.length)];
 ---
 
 <BaseLayout
   title="Jérémie Flahaut — développeur web fullstack"
-  description="Site perso et blog de Jérémie Flahaut, développeur web fullstack (Laravel, Vue, Docker). Notes, retours d'expérience et bouts de code, en français."
+  description="Site perso et blog de Jérémie Flahaut, développeur backend senior (Laravel, PHP 8, Docker). Notes, retours d'expérience et bouts de code, en français."
 >
   <!-- ——— Héros ——— -->
   <section class="relative overflow-hidden">
@@ -49,14 +64,12 @@ const stack = [
           Jérémie<br />Flahaut<span class="text-accent">.</span>
         </h1>
         <p
-          class="reveal mt-6 max-w-md text-base leading-relaxed text-muted sm:text-lg"
+          class="reveal mt-6 max-w-md text-pretty text-base leading-relaxed text-muted sm:text-lg"
           style="--d: 0.16s"
         >
-          J'assemble des applications web solides — <strong class="font-medium text-fg"
-            >Laravel</strong
-          > côté serveur, <strong class="font-medium text-fg">Vue</strong> côté client,
-          <strong class="font-medium text-fg">Docker</strong> partout. Ici, je documente ce que
-          j'apprends en chemin.
+          Le backend, c'est tout ce qu'on ne voit pas.
+          <strong class="font-medium text-fg">Jusqu'au jour où ça casse.</strong> Ici, je raconte
+          ce qui se passe derrière&nbsp;: les choix, les pièges, et ce qui finit par marcher.
         </p>
         <div class="reveal mt-8 flex flex-wrap items-center gap-3" style="--d: 0.24s">
           <a
@@ -88,15 +101,13 @@ const stack = [
           </div>
           <div class="space-y-2.5 px-4 py-4 font-mono text-[13px] leading-relaxed">
             <p class="reveal" style="--d: 0.45s"><span class="text-accent">❯</span> whoami</p>
-            <p class="reveal text-muted" style="--d: 0.65s">jeremie — dev fullstack laravel</p>
+            <p class="reveal text-muted" style="--d: 0.65s">jeremie — backend senior · laravel · 8+ ans</p>
             <p class="reveal" style="--d: 0.9s">
               <span class="text-accent">❯</span> php artisan inspire
             </p>
-            <p class="reveal text-muted" style="--d: 1.1s">
-              « La simplicité est la sophistication suprême. »
-            </p>
+            <p class="reveal text-muted" style="--d: 1.1s">{inspire}</p>
             <p class="reveal" style="--d: 1.35s">
-              <span class="text-accent">❯</span> docker compose up -d site-perso
+              <span class="text-accent">❯</span> docker compose up -d dev-fullstack
             </p>
             <p class="reveal text-muted" style="--d: 1.55s">
               <span class="text-[#28c840]">✔</span> Container dev-fullstack —

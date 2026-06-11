@@ -14,6 +14,5 @@ Avant de créer ou modifier **tout contenu public** — articles `src/content/bl
 
 ## Pièges
 
-- Le site est volontairement en `noindex` (flag `NOINDEX` dans `src/layouts/BaseLayout.astro` + ligne `Sitemap` commentée dans `public/robots.txt`) : ne retirer les deux qu'ensemble, et uniquement sur demande explicite.
 - Astro 6 : `src/content.config.ts` (pas `src/content/config.ts`), `post.id` (pas `slug`), `render(post)` importé depuis `astro:content`, zod via `astro/zod`.
 - Commits : conventionnels, en français, avec scope ; jamais de trailer `Co-Authored-By`.

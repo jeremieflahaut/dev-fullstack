@@ -84,6 +84,6 @@ scripts/             # generate-og.mjs (image Open Graph + apple-touch-icon)
 
 ## Notes
 
-- ⚠️ Le site est actuellement en **`noindex`** (rodage) : flag `NOINDEX` dans `src/layouts/BaseLayout.astro` + ligne `Sitemap` commentée dans `public/robots.txt`. Retirer les deux ensemble à l'ouverture, puis déclarer le sitemap dans la Search Console.
+- Le site est ouvert à l'indexation : sitemap déclaré dans `public/robots.txt` (`/sitemap-index.xml`, généré par `@astrojs/sitemap`).
 - Le domaine custom est configuré dans les settings GitHub Pages (le fichier `public/CNAME` n'est qu'informatif avec un déploiement via Actions).
 - Régénérer l'image OG / les icônes : voir l'en-tête de `scripts/generate-og.mjs`.

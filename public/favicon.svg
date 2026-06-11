@@ -1,4 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#18181b"/>
-  <text x="32" y="43" font-family="ui-monospace, monospace" font-size="26" font-weight="bold" text-anchor="middle" fill="#fafafa">&lt;/&gt;</text>
+  <!-- ❯_ : prompt de terminal — tracés purs, aucune dépendance à une police -->
+  <rect width="64" height="64" rx="14" fill="#0d0c0b"/>
+  <path d="M20 19 L34 32 L20 45" fill="none" stroke="#ff5a41" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="38" y="42" width="13" height="6" rx="2" fill="#ece8e1"/>
 </svg>

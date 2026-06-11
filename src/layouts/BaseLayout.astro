@@ -8,10 +8,12 @@ interface Props {
   title: string;
   description: string;
   ogType?: 'website' | 'article';
+  ogImage?: string;
 }
 
-const { title, description, ogType = 'website' } = Astro.props;
+const { title, description, ogType = 'website', ogImage = '/og-default.png' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(ogImage, Astro.site);
 
 // Site en rodage : contenu pas encore validé → indexation interdite.
 // TODO(ouverture) : passer à false, remettre la ligne Sitemap dans
@@ -29,6 +31,7 @@ const NOINDEX = true;
     {NOINDEX && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -42,6 +45,12 @@ const NOINDEX = true;
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:site_name" content="dev-fullstack.net" />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="dev-fullstack — Jérémie Flahaut, développeur web fullstack" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImageURL} />
     <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0d0c0b" media="(prefers-color-scheme: dark)" />
     <Font cssVariable="--font-bricolage" preload />

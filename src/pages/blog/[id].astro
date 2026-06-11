@@ -1,0 +1,80 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPublishedPosts } from '../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content, remarkPluginFrontmatter } = await render(post);
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+
+<BaseLayout
+  title={`${post.data.title} · dev-fullstack`}
+  description={post.data.description}
+  ogType="article"
+>
+  <article class="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:py-20">
+    <header>
+      <p class="reveal font-mono text-xs text-muted" style="--d: 0s">
+        <a href="/blog/" class="transition-colors hover:text-accent">~/blog</a>
+        <span class="text-accent">❯</span>
+        {post.id}
+      </p>
+      <h1
+        class="reveal mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl"
+        style="--d: 0.08s"
+      >
+        {post.data.title}
+      </h1>
+      <p class="reveal mt-4 text-lg leading-relaxed text-muted" style="--d: 0.16s">
+        {post.data.description}
+      </p>
+      <div
+        class="reveal mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-line pb-6 font-mono text-xs text-muted"
+        style="--d: 0.2s"
+      >
+        <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{remarkPluginFrontmatter.minutesRead} min de lecture</span>
+        {
+          post.data.updatedDate && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>mis à jour le {formatDate(post.data.updatedDate)}</span>
+            </>
+          )
+        }
+        {
+          post.data.tags.length > 0 && (
+            <span class="flex flex-wrap gap-2">
+              {post.data.tags.map((tag) => (
+                <span class="border border-line px-1.5 py-0.5">#{tag}</span>
+              ))}
+            </span>
+          )
+        }
+      </div>
+    </header>
+
+    <div class="prose reveal mt-8 max-w-none" style="--d: 0.28s">
+      <Content />
+    </div>
+
+    <footer class="mt-12 border-t border-line pt-6">
+      <a
+        href="/blog/"
+        class="group inline-flex items-center gap-2 font-mono text-sm text-muted transition-colors hover:text-accent"
+      >
+        <span class="inline-block transition-transform group-hover:-translate-x-0.5">←</span>
+        tous les articles
+      </a>
+    </footer>
+  </article>
+</BaseLayout>

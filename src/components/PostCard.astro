@@ -1,0 +1,48 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  description: string;
+  pubDate: Date;
+  minutes?: number;
+  tags?: string[];
+}
+
+const { href, title, description, pubDate, minutes, tags = [] } = Astro.props;
+
+const date = pubDate.toLocaleDateString('fr-FR', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric',
+});
+---
+
+<a
+  href={href}
+  class="group grid gap-1 border-t border-line py-5 sm:grid-cols-[8.5rem_1fr] sm:gap-6"
+>
+  <p class="font-mono text-xs leading-6 text-muted">
+    {date}{minutes && <span> · {minutes} min</span>}
+  </p>
+  <div>
+    <h3
+      class="font-display text-lg font-semibold tracking-tight text-fg transition-colors group-hover:text-accent"
+    >
+      {title}
+      <span
+        class="ml-1 inline-block text-accent opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-100"
+        aria-hidden="true">❯</span
+      >
+    </h3>
+    <p class="mt-1 text-sm leading-relaxed text-muted">{description}</p>
+    {
+      tags.length > 0 && (
+        <p class="mt-2 flex flex-wrap gap-2 font-mono text-[11px] text-muted">
+          {tags.map((tag) => (
+            <span class="border border-line px-1.5 py-0.5">#{tag}</span>
+          ))}
+        </p>
+      )
+    }
+  </div>
+</a>

@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="404 · dev-fullstack" description="Page introuvable.">
+  <section
+    class="mx-auto flex w-full max-w-5xl flex-col items-center px-4 py-24 text-center sm:px-6 lg:py-32"
+  >
+    <h1
+      class="reveal font-display text-7xl font-bold tracking-tight text-accent sm:text-8xl"
+      style="--d: 0s"
+    >
+      404
+    </h1>
+    <p class="reveal mt-6 font-mono text-sm text-muted sm:text-base" style="--d: 0.08s">
+      bash&nbsp;: cette-page&nbsp;: command not found
+    </p>
+    <a
+      href="/"
+      class="reveal group mt-10 inline-flex items-center gap-2 border border-line px-4 py-2 font-mono text-sm transition-colors hover:border-accent hover:text-accent"
+      style="--d: 0.16s"
+    >
+      <span class="text-accent transition-transform group-hover:translate-x-0.5">❯</span> cd ~/
+    </a>
+  </section>
+</BaseLayout>

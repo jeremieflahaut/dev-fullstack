@@ -1,0 +1,59 @@
+---
+const path = Astro.url.pathname;
+
+const links = [
+  { href: '/blog/', label: '~/blog' },
+  { href: '/a-propos/', label: '~/a-propos' },
+];
+---
+
+<header class="sticky top-0 z-40 border-b border-line bg-bg/85 backdrop-blur-sm">
+  <div class="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
+    <a href="/" class="group font-mono text-sm tracking-tight text-fg" aria-label="Accueil — dev-fullstack">
+      <span class="text-accent">❯</span> dev-fullstack<span
+        class="text-muted transition-colors group-hover:text-accent">_</span>
+    </a>
+    <nav class="flex items-center gap-1 sm:gap-2" aria-label="Navigation principale">
+      {
+        links.map((link) => {
+          const active = path.startsWith(link.href.replace(/\/$/, ''));
+          return (
+            <a
+              href={link.href}
+              aria-current={active ? 'page' : undefined}
+              class:list={[
+                'rounded-sm px-2 py-1.5 font-mono text-[13px] transition-colors sm:px-3',
+                active ? 'text-accent' : 'text-muted hover:text-fg',
+              ]}
+            >
+              {link.label}
+            </a>
+          );
+        })
+      }
+      <button
+        id="theme-toggle"
+        type="button"
+        aria-label="Changer de thème"
+        class="ml-1 inline-flex size-8 cursor-pointer items-center justify-center rounded-sm border border-line text-muted transition-colors hover:border-accent hover:text-accent"
+      >
+        <!-- lune (visible en clair → passe en sombre) -->
+        <svg class="size-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"></path>
+        </svg>
+        <!-- soleil (visible en sombre → passe en clair) -->
+        <svg class="hidden size-4 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+        </svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<script>
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  });
+</script>

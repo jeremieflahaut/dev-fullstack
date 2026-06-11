@@ -1,0 +1,17 @@
+# Dev local uniquement : la prod est GitHub Pages (build statique via Actions).
+# Pas de réseau antibes/Traefik nécessaire — simple port mapping.
+# UID/GID : exportés par le Makefile pour que node_modules/ et dist/ appartiennent à l'hôte.
+services:
+  node:
+    image: node:24-alpine
+    container_name: dev-fullstack_node
+    working_dir: /app
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
+    environment:
+      npm_config_update_notifier: "false"
+      npm_config_cache: /tmp/.npm
+    volumes:
+      - ./:/app
+    ports:
+      - "4321:4321"
+    command: ["npm", "run", "dev"]

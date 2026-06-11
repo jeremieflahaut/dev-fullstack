@@ -1,0 +1,69 @@
+---
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  ogType?: 'website' | 'article';
+}
+
+const { title, description, ogType = 'website' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// Site en rodage : contenu pas encore validé → indexation interdite.
+// TODO(ouverture) : passer à false, remettre la ligne Sitemap dans
+// public/robots.txt, puis déclarer le site dans la Google Search Console.
+const NOINDEX = true;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {NOINDEX && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="dev-fullstack — blog"
+      href={new URL('rss.xml', Astro.site)}
+    />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="dev-fullstack.net" />
+    <meta name="theme-color" content="#faf8f4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0c0b" media="(prefers-color-scheme: dark)" />
+    <Font cssVariable="--font-bricolage" preload />
+    <Font cssVariable="--font-instrument" preload />
+    <Font cssVariable="--font-jbmono" preload />
+    <script is:inline>
+      // Avant le premier paint pour éviter tout flash de thème.
+      const theme =
+        localStorage.getItem('theme') ??
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+    </script>
+  </head>
+  <body class="flex min-h-dvh flex-col bg-bg font-sans text-fg antialiased transition-colors duration-300">
+    <a
+      href="#contenu"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-accent focus:px-3 focus:py-2 focus:font-mono focus:text-sm focus:text-bg"
+    >Aller au contenu</a>
+    <Header />
+    <main id="contenu" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

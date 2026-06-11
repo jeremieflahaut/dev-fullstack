@@ -1,0 +1,6 @@
+# Crawl autorisé pour que le meta noindex des pages soit lu par les robots.
+# TODO(ouverture) : décommenter la ligne Sitemap quand le noindex sera retiré.
+User-agent: *
+Allow: /
+
+# Sitemap: https://www.dev-fullstack.net/sitemap-index.xml

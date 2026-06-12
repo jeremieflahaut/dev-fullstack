@@ -50,7 +50,7 @@ REQUEST_METHOD=GET \
 cgi-fcgi -bind -connect 127.0.0.1:9000
 ```
 
-Elle envoie une requête FastCGI synthétique à FPM, qui répond `pong` avec un code 200. Si FPM ne répond pas — processus mort, port non ouvert, workers saturés au point de ne plus accepter de connexions — la commande échoue et retourne un code non nul.
+Elle envoie une requête FastCGI synthétique à FPM, qui répond `pong`. Si FPM n'accepte pas la connexion — processus mort, port non ouvert — `cgi-fcgi` retourne un code non nul et le check échoue. Nuance importante : `cgi-fcgi` retourne `0` dès que l'échange FastCGI aboutit, **même si FPM répond un 500** — le code de sortie reflète « FPM a accepté et complété une requête », pas littéralement un `200`. Pour `/ping` c'est suffisant, mais pour un check strict, grepez la sortie sur `pong`.
 
 ## Le HEALTHCHECK dans le Dockerfile
 

@@ -116,6 +116,7 @@ Soyons honnêtes sur ce que ce check vérifie réellement.
 - Une base de données inaccessible
 - Une extension PHP mal configurée qui plante uniquement sur certains chemins
 - Une saturation mémoire progressive qui n'affecte pas encore le ping
+- Une saturation du pool : `ping.path` est traité par le master FPM, pas par un worker — il peut répondre `pong` alors que `pm.max_children` est atteint.
 
 Ce n'est pas un test end-to-end. Pour détecter une dépendance défaillante — MySQL, Redis… — il faut soit un healthcheck dédié sur ces services, soit un endpoint de santé applicatif qui les interroge. Mais ça appartient à l'application, pas au conteneur FPM.
 

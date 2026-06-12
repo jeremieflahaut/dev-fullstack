@@ -69,6 +69,7 @@ jobs:
             ${{ inputs.notes }}
             </notes>
           claude_args: |
+            --model claude-opus-4-8
             --allowedTools "Read,Glob,Grep,Write,Edit,Bash(git:*),Bash(date:*)"
 
       - name: Installer Node

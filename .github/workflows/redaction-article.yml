@@ -14,16 +14,6 @@ on:
       notes:
         required: false
         type: string
-      relire:
-        # Enchaîner la relecture en interne. « Idée d'article » la passe à false
-        # car elle gère la relecture en job frère (étiquettes plus lisibles).
-        required: false
-        type: boolean
-        default: true
-    outputs:
-      branch:
-        description: "Branche article/<slug> créée par la rédaction"
-        value: ${{ jobs.rediger.outputs.branch }}
   workflow_dispatch:
     inputs:
       idee:
@@ -34,11 +24,6 @@ on:
         description: "Notes optionnelles (angle, liens, contraintes)"
         required: false
         type: string
-      relire:
-        description: "Enchaîner la relecture après la rédaction"
-        required: false
-        type: boolean
-        default: true
 
 # Une rédaction à la fois — les suivantes patientent.
 concurrency:
@@ -138,11 +123,9 @@ jobs:
           gh pr create --base main --head "$BRANCH" --fill
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
-  # Relecture factuelle enchaînée après l'ouverture de la PR, sauf si le caller la
-  # gère lui-même (relire=false, cas du workflow « Idée d'article »).
+  # Relecture factuelle automatique, enchaînée dès que la PR est ouverte (aucune étape manuelle).
   relire:
     needs: rediger
-    if: ${{ inputs.relire }}
     uses: ./.github/workflows/relecture-article.yml
     secrets: inherit
     with:

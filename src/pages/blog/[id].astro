@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import AiDisclaimer from '../../components/AiDisclaimer.astro';
 import { getPublishedPosts } from '../../lib/posts';
 
 export async function getStaticPaths() {
@@ -66,6 +67,8 @@ const formatDate = (date: Date) =>
     <div class="prose reveal mt-8 max-w-none" style="--d: 0.28s">
       <Content />
     </div>
+
+    <AiDisclaimer />
 
     <footer class="mt-12 border-t border-line pt-6">
       <a

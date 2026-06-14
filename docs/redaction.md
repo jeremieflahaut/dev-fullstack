@@ -34,6 +34,7 @@ Ce guide est lu par l'agent de rédaction (workflow « Rédaction d'article ») 
 - Une conclusion actionnable : ce qu'il faut retenir, ou la prochaine étape.
 - Sections en `##` (le `#` est réservé au titre de page) ; pas de table des matières manuelle.
 - Ne jamais inventer de benchmarks, de chiffres ou de citations.
+- Ne pas ajouter de mention « rédigé par une IA » ni de disclaimer dans le corps : le site l'affiche automatiquement en bas de chaque article.
 
 ## Typographie française
 

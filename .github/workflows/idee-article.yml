@@ -127,31 +127,43 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            Tu es l'agent d'idéation SEO du blog dev-fullstack.net.
+            Tu es l'agent d'idéation SEO du blog dev-fullstack.net. Ta mission :
+            ÉLARGIR la couverture du blog, pas creuser un coin déjà traité.
 
             1. Lis docs/redaction.md : périmètre éditorial et règles de
                confidentialité (non négociables). Ne propose jamais un sujet qui
                obligerait à révéler des informations protégées.
-            2. Liste les articles déjà publiés dans src/content/blog/ (titres +
-               tags) pour NE PAS proposer un doublon ni un sujet trop proche.
-            3. MOTEUR PRINCIPAL — recherche de niche via WebSearch/WebFetch : trouve
-               UN sujet autour de la stack (Laravel, PHP, Docker, Redis, files
-               d'attente, tests, CI/CD, performances) à intention de recherche claire
-               et FAIBLE CONCURRENCE, pratique et différenciant, non couvert par le
-               blog. Si un thème est fourni ci-dessous, oriente l'idée dessus.
-            4. COMPLÉMENT — Search Console : si /tmp/gsc.json existe et n'est pas vide,
+            2. Lis docs/ligne-editoriale.md : la liste des piliers et la règle de
+               diversification. Elle est NON NÉGOCIABLE.
+            3. CHOIX DU PILIER (avant toute recherche de sujet) — liste les articles
+               déjà publiés dans src/content/blog/, classe CHACUN dans son pilier,
+               compte par pilier. Identifie le(s) pilier(s) dominant(s) et ceux qui
+               sont vides ou à un seul article. Choisis un pilier SOUS-COUVERT (vide
+               en priorité) : tant qu'un pilier est vide, n'en propose pas un du
+               pilier dominant. Si un thème est fourni ci-dessous, il prime sur cette
+               règle et fixe la direction. Annonce le pilier retenu et le décompte par
+               pilier au début de tes notes.
+            4. MOTEUR PRINCIPAL — recherche de niche via WebSearch/WebFetch DANS le
+               pilier retenu : trouve UN sujet à intention de recherche claire et
+               FAIBLE CONCURRENCE, pratique et différenciant, ancré dans le vécu d'un
+               dev backend senior (Laravel/PHP/SQL/Redis/Docker, fullstack à
+               l'occasion, front TS/Svelte). Le niche-hunting affine l'ANGLE à
+               l'intérieur du pilier — il ne sert pas à rechoisir un pilier déjà servi.
+            5. COMPLÉMENT — Search Console : si /tmp/gsc.json existe et n'est pas vide,
                c'est l'export GSC des 90 derniers jours (rows : keys=[query, page],
                clicks, impressions, ctr, position). Sers-t'en pour privilégier, parmi
                tes pistes, (a) une requête à fortes impressions mais position > 10 ou
                CTR faible = opportunité « presque gagnée », ou (b) une requête sans
                page dédiée = trou de contenu. Absent ou vide (cas attendu au début) :
-               ignore-le, la recherche web décide seule.
-            5. Écris le résultat dans /tmp/idee.json — un objet JSON avec EXACTEMENT
+               ignore-le, la recherche web décide seule. GSC reste subordonné au
+               pilier déjà choisi : il départage des angles, il ne ramène pas vers un
+               pilier dominant.
+            6. Écris le résultat dans /tmp/idee.json — un objet JSON avec EXACTEMENT
                deux clés :
                - "idee"  : une phrase décrivant le sujet et son angle ;
-               - "notes" : mot-clé/requête cible (issue de GSC si dispo, sinon du web),
-                 intention de recherche, indice de concurrence, 2-3 liens sources
-                 fiables, points à couvrir.
+               - "notes" : pilier retenu + décompte par pilier ; mot-clé/requête cible
+                 (issue de GSC si dispo, sinon du web), intention de recherche, indice
+                 de concurrence, 2-3 liens sources fiables, points à couvrir.
                N'écris RIEN d'autre que ce fichier ; ne touche pas au dépôt.
 
             Prudence web : ne mets jamais d'information potentiellement sensible

@@ -74,12 +74,6 @@ jobs:
             echo "::notice::GSC_SA_KEY absent — idéation en recherche web seule."
           fi
 
-      - name: Installer Python (pour GSC)
-        if: steps.soupape.outputs.skip == 'false' && steps.gsccfg.outputs.enabled == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
       - name: Export Search Console (90 j)
         if: steps.soupape.outputs.skip == 'false' && steps.gsccfg.outputs.enabled == 'true'
         env:
@@ -89,9 +83,11 @@ jobs:
           # Auth directe depuis la clé du compte de service (JWT signé localement →
           # token OAuth), sans l'API IAM Service Account Credentials ni rôle Token
           # Creator. Best-effort : toute erreur GSC laisse l'idéation continuer en
-          # recherche web seule (le run ne plante pas).
-          python -m pip install --quiet google-auth requests || echo "::warning::pip GSC a échoué"
-          python - <<'PY'
+          # recherche web seule (le run ne plante pas). venv + le python3 du runner
+          # pour éviter l'action setup-python (dépréciée Node 20) et PEP 668.
+          python3 -m venv /tmp/gscvenv
+          /tmp/gscvenv/bin/pip install --quiet google-auth requests || echo "::warning::pip GSC a échoué"
+          /tmp/gscvenv/bin/python - <<'PY'
           import os, json, datetime, urllib.parse
           try:
               from google.oauth2 import service_account

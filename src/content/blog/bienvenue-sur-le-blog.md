@@ -1,7 +1,7 @@
 ---
 title: "Bienvenue sur le blog"
 description: "Un énième blog de dev ? Oui — mais en français, orienté Laravel et fullstack, et construit comme un projet à part entière."
-pubDate: 2026-06-11
+pubDate: 2026-06-10
 tags: ["meta"]
 ---
 

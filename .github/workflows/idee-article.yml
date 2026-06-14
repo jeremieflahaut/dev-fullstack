@@ -1,4 +1,7 @@
-# Idée d'article orientée SEO (Search Console + web), puis déclenchement de la rédaction.
+# Idée d'article orientée SEO (Search Console + web), puis rédaction + relecture
+# DANS LE MÊME RUN : le job « idee » trouve un sujet et l'expose en sortie, le job
+# « rediger » appelle « Rédaction d'article » (workflow_call), qui enchaîne elle-même
+# la relecture. Tout se suit dans un seul run : idée → rédaction → relecture → PR.
 # Tourne en cron (rampe de lancement : 3×/sem lun/mer/ven) et à la demande.
 # La PR ouverte par la rédaction + la relecture restent la validation humaine :
 # rien ne se publie sans merge.
@@ -22,15 +25,19 @@ concurrency:
   group: idee-article
   cancel-in-progress: false
 
-permissions:
-  contents: read       # checkout : lecture des articles existants + docs
-  actions: write       # déclencher la rédaction (gh workflow run)
-  pull-requests: read  # soupape : compter les PR d'article ouvertes
-  id-token: write
+permissions: {}
 
 jobs:
   idee:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read       # checkout : lecture des articles existants + docs
+      pull-requests: read  # soupape : compter les PR d'article ouvertes
+      id-token: write       # claude-code-action
+    outputs:
+      skip: ${{ steps.soupape.outputs.skip }}
+      idee: ${{ steps.out.outputs.idee }}
+      notes: ${{ steps.out.outputs.notes }}
     steps:
       - uses: actions/checkout@v6
 
@@ -134,22 +141,41 @@ jobs:
             --model claude-opus-4-8
             --allowedTools "Read,Glob,Grep,WebSearch,WebFetch,Write"
 
-      - name: Déclencher la rédaction
+      # Expose l'idée en sortie de job pour le job « rediger » (même run).
+      - name: Préparer l'idée
+        id: out
         if: steps.soupape.outputs.skip == 'false'
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           if [ ! -f /tmp/idee.json ]; then
             echo "::error::L'agent n'a pas produit /tmp/idee.json."
             exit 1
           fi
           IDEE=$(jq -r '.idee // ""' /tmp/idee.json)
-          NOTES=$(jq -r '.notes // ""' /tmp/idee.json)
           if [ -z "$IDEE" ]; then
             echo "::error::Idée vide dans /tmp/idee.json."
             exit 1
           fi
           echo "Idée générée : $IDEE"
-          gh workflow run redaction-article.yml --ref main \
-            -f idee="$IDEE" -f notes="$NOTES"
-          echo "::notice::Rédaction déclenchée."
+          {
+            echo "idee<<IDEE_EOF"
+            jq -r '.idee // ""' /tmp/idee.json
+            echo "IDEE_EOF"
+            echo "notes<<NOTES_EOF"
+            jq -r '.notes // ""' /tmp/idee.json
+            echo "NOTES_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+  # Rédaction (+ relecture enchaînée) dans le même run, sauf si la soupape a sauté.
+  rediger:
+    needs: idee
+    if: needs.idee.outputs.skip == 'false'
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    uses: ./.github/workflows/redaction-article.yml
+    secrets: inherit
+    with:
+      idee: ${{ needs.idee.outputs.idee }}
+      notes: ${{ needs.idee.outputs.notes }}

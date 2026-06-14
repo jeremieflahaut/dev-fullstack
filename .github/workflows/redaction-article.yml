@@ -1,9 +1,19 @@
-# Rédaction d'un article par l'agent Claude : Actions → « Rédaction d'article » → Run workflow.
-# L'agent rédige dans une branche article/<slug>, le job vérifie le build puis ouvre la PR.
-# Prérequis : secret CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token`) + GitHub App Claude installée.
+# Rédaction d'un article par l'agent Claude. Deux usages :
+#  - appelée par « Idée d'article » (workflow_call), dans le même run ;
+#  - lançable seule à la main (Actions → « Rédaction d'article » → Run workflow).
+# L'agent rédige dans une branche article/<slug>, le job vérifie le build, ouvre la PR,
+# puis enchaîne la relecture. Prérequis : secret CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token`).
 name: Rédaction d'article
 
 on:
+  workflow_call:
+    inputs:
+      idee:
+        required: true
+        type: string
+      notes:
+        required: false
+        type: string
   workflow_dispatch:
     inputs:
       idee:
@@ -43,8 +53,9 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # Déclenchée par le workflow « Idée d'article » : l'acteur est le bot
-          # github-actions, à autoriser explicitement (garde-fou non-human actor).
+          # Filet de sécurité : en flux normal l'acteur est humain (dispatch) ou le
+          # cron de « Idée d'article », mais on tolère le bot github-actions au cas où
+          # un run lui serait attribué (garde-fou « non-human actor » de l'action).
           allowed_bots: "github-actions"
           prompt: |
             Tu es l'agent de rédaction du blog dev-fullstack.net.

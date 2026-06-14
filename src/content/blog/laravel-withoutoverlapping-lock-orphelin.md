@@ -109,7 +109,7 @@ Ensuite, si ce store partagé est un Redis configuré en éviction (`allkeys-lru
 
 Le piège de ce bug, c'est son silence. Aucune erreur n'est levée : du point de vue de Laravel, sauter une exécution verrouillée est un comportement *normal*. La seule façon de le détecter, c'est de surveiller non pas les erreurs, mais **l'absence de succès**.
 
-Laravel offre exactement le crochet qu'il faut avec `pingOnSuccess()` — ou un *heartbeat* vers un service de supervision qui vous alerte quand le signal cesse :
+Laravel offre exactement le crochet qu'il faut avec `onSuccess()` — un *heartbeat* vers un service de supervision qui vous alerte quand le signal cesse :
 
 ```php
 // routes/console.php

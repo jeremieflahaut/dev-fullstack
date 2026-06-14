@@ -1,14 +1,24 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import JsonLd from '../../../components/JsonLd.astro';
 import { getAllTags } from '../../../lib/posts';
+import { buildBreadcrumb } from '../../../lib/seo';
 
 const tags = await getAllTags();
+
+// Fil d'Ariane : Accueil › Blog › Tags.
+const breadcrumb = buildBreadcrumb([
+  { name: 'Accueil', url: new URL('/', Astro.site).href },
+  { name: 'Blog', url: new URL('/blog/', Astro.site).href },
+  { name: 'Tags', url: new URL('/blog/tags/', Astro.site).href },
+]);
 ---
 
 <BaseLayout
   title="Tags · blog · dev-fullstack"
   description="Parcourir les articles du blog dev-fullstack par thème."
 >
+  <JsonLd schema={breadcrumb} />
   <section class="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:py-20">
     <p class="reveal font-mono text-sm text-muted" style="--d: 0s">
       <a href="/blog/" class="transition-colors hover:text-accent">~/blog</a>

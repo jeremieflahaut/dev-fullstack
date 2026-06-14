@@ -2,7 +2,9 @@
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PostCard from '../../../components/PostCard.astro';
+import JsonLd from '../../../components/JsonLd.astro';
 import { getPublishedPosts, getAllTags } from '../../../lib/posts';
+import { buildBreadcrumb } from '../../../lib/seo';
 
 export const getStaticPaths = (async () => {
   const [posts, tags] = await Promise.all([getPublishedPosts(), getAllTags()]);
@@ -13,12 +15,21 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { tag, posts } = Astro.props;
+
+// Fil d'Ariane : Accueil › Blog › Tags › #tag.
+const breadcrumb = buildBreadcrumb([
+  { name: 'Accueil', url: new URL('/', Astro.site).href },
+  { name: 'Blog', url: new URL('/blog/', Astro.site).href },
+  { name: 'Tags', url: new URL('/blog/tags/', Astro.site).href },
+  { name: `#${tag}`, url: new URL(`/blog/tags/${tag}/`, Astro.site).href },
+]);
 ---
 
 <BaseLayout
   title={`#${tag} · blog · dev-fullstack`}
   description={`Articles du blog dev-fullstack sur le thème « ${tag} ».`}
 >
+  <JsonLd schema={breadcrumb} />
   <section class="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:py-20">
     <p class="reveal font-mono text-sm text-muted" style="--d: 0s">
       <a href="/blog/" class="transition-colors hover:text-accent">~/blog</a>

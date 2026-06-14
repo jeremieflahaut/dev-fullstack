@@ -1,0 +1,155 @@
+# Idée d'article orientée SEO (Search Console + web), puis déclenchement de la rédaction.
+# Tourne en cron (rampe de lancement : 3×/sem lun/mer/ven) et à la demande.
+# La PR ouverte par la rédaction + la relecture restent la validation humaine :
+# rien ne se publie sans merge.
+# Secrets : CLAUDE_CODE_OAUTH_TOKEN (requis) ; GSC_SA_KEY (optionnel : active GSC).
+name: Idée d'article
+
+on:
+  schedule:
+    # Phase de lancement : lun/mer/ven à 9 h UTC (11 h FR été, 10 h hiver).
+    # Quand la base sera suffisante (~15-25 articles), repasser à l'hebdo : '0 9 * * 1'.
+    - cron: '0 9 * * 1,3,5'
+  workflow_dispatch:
+    inputs:
+      theme:
+        description: "Thème optionnel pour orienter l'idée (ex. tests, perfs)"
+        required: false
+        type: string
+
+# Une idéation à la fois.
+concurrency:
+  group: idee-article
+  cancel-in-progress: false
+
+permissions:
+  contents: read       # checkout : lecture des articles existants + docs
+  actions: write       # déclencher la rédaction (gh workflow run)
+  pull-requests: read  # soupape : compter les PR d'article ouvertes
+  id-token: write
+
+jobs:
+  idee:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      # Soupape anti-empilement : si trop de PR d'article attendent déjà une
+      # relecture humaine, on saute ce run plutôt que d'en empiler une de plus.
+      - name: Soupape (PR d'article ouvertes)
+        id: soupape
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MAX_OPEN_PR: '2'   # seuil ajustable
+        run: |
+          OPEN=$(gh pr list --state open --json headRefName \
+            --jq '[.[] | select(.headRefName | startswith("article/"))] | length')
+          echo "PR d'article ouvertes : $OPEN (seuil : $MAX_OPEN_PR)"
+          if [ "$OPEN" -ge "$MAX_OPEN_PR" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::$OPEN PR d'article en attente, run d'idée sauté."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # --- Search Console (optionnel : actif dès que le secret GSC_SA_KEY existe) ---
+      - name: Config GSC présente ?
+        id: gsccfg
+        if: steps.soupape.outputs.skip == 'false'
+        env:
+          GSC_SA_KEY: ${{ secrets.GSC_SA_KEY }}
+        run: |
+          if [ -n "$GSC_SA_KEY" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GSC_SA_KEY absent — idéation en recherche web seule."
+          fi
+
+      - name: Authentification Google
+        id: auth
+        if: steps.soupape.outputs.skip == 'false' && steps.gsccfg.outputs.enabled == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GSC_SA_KEY }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/webmasters.readonly
+
+      - name: Export Search Console (90 j)
+        if: steps.soupape.outputs.skip == 'false' && steps.gsccfg.outputs.enabled == 'true'
+        env:
+          TOKEN: ${{ steps.auth.outputs.access_token }}
+          SITE: 'sc-domain:dev-fullstack.net'   # propriété Domaine
+        run: |
+          START=$(date -u -d '90 days ago' +%F)
+          END=$(date -u +%F)
+          SITE_ENC=$(jq -rn --arg s "$SITE" '$s|@uri')
+          curl -sS -X POST \
+            "https://www.googleapis.com/webmasters/v3/sites/${SITE_ENC}/searchAnalytics/query" \
+            -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+            -d "{\"startDate\":\"$START\",\"endDate\":\"$END\",\"dimensions\":[\"query\",\"page\"],\"rowLimit\":200,\"dataState\":\"all\"}" \
+            -o /tmp/gsc.json
+          echo "Lignes GSC récupérées : $(jq '.rows | length // 0' /tmp/gsc.json)"
+
+      - name: Générer une idée orientée SEO
+        if: steps.soupape.outputs.skip == 'false'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Tu es l'agent d'idéation SEO du blog dev-fullstack.net.
+
+            1. Lis docs/redaction.md : périmètre éditorial et règles de
+               confidentialité (non négociables). Ne propose jamais un sujet qui
+               obligerait à révéler des informations protégées.
+            2. Liste les articles déjà publiés dans src/content/blog/ (titres +
+               tags) pour NE PAS proposer un doublon ni un sujet trop proche.
+            3. MOTEUR PRINCIPAL — recherche de niche via WebSearch/WebFetch : trouve
+               UN sujet autour de la stack (Laravel, PHP, Docker, Redis, files
+               d'attente, tests, CI/CD, performances) à intention de recherche claire
+               et FAIBLE CONCURRENCE, pratique et différenciant, non couvert par le
+               blog. Si un thème est fourni ci-dessous, oriente l'idée dessus.
+            4. COMPLÉMENT — Search Console : si /tmp/gsc.json existe et n'est pas vide,
+               c'est l'export GSC des 90 derniers jours (rows : keys=[query, page],
+               clicks, impressions, ctr, position). Sers-t'en pour privilégier, parmi
+               tes pistes, (a) une requête à fortes impressions mais position > 10 ou
+               CTR faible = opportunité « presque gagnée », ou (b) une requête sans
+               page dédiée = trou de contenu. Absent ou vide (cas attendu au début) :
+               ignore-le, la recherche web décide seule.
+            5. Écris le résultat dans /tmp/idee.json — un objet JSON avec EXACTEMENT
+               deux clés :
+               - "idee"  : une phrase décrivant le sujet et son angle ;
+               - "notes" : mot-clé/requête cible (issue de GSC si dispo, sinon du web),
+                 intention de recherche, indice de concurrence, 2-3 liens sources
+                 fiables, points à couvrir.
+               N'écris RIEN d'autre que ce fichier ; ne touche pas au dépôt.
+
+            Prudence web : ne mets jamais d'information potentiellement sensible
+            dans une requête de recherche.
+
+            <theme>
+            ${{ inputs.theme }}
+            </theme>
+          claude_args: |
+            --model claude-opus-4-8
+            --allowedTools "Read,Glob,Grep,WebSearch,WebFetch,Write"
+
+      - name: Déclencher la rédaction
+        if: steps.soupape.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -f /tmp/idee.json ]; then
+            echo "::error::L'agent n'a pas produit /tmp/idee.json."
+            exit 1
+          fi
+          IDEE=$(jq -r '.idee // ""' /tmp/idee.json)
+          NOTES=$(jq -r '.notes // ""' /tmp/idee.json)
+          if [ -z "$IDEE" ]; then
+            echo "::error::Idée vide dans /tmp/idee.json."
+            exit 1
+          fi
+          echo "Idée générée : $IDEE"
+          gh workflow run redaction-article.yml --ref main \
+            -f idee="$IDEE" -f notes="$NOTES"
+          echo "::notice::Rédaction déclenchée."

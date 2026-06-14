@@ -1,9 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
+import JsonLd from '../components/JsonLd.astro';
 import { getPublishedPosts } from '../lib/posts';
+import { buildWebSite } from '../lib/seo';
 
 const latestPosts = (await getPublishedPosts()).slice(0, 3);
+
+// Données structurées : identité du site et de son auteur (E-E-A-T).
+const webSite = buildWebSite(Astro.site);
 
 const stack = [
   'Laravel',
@@ -36,6 +41,7 @@ const inspire = quotes[Math.floor(Math.random() * quotes.length)];
   title="Jérémie Flahaut — développeur web fullstack"
   description="Site perso et blog de Jérémie Flahaut, développeur backend senior (Laravel, PHP 8, Docker). Notes, retours d'expérience et bouts de code, en français."
 >
+  <JsonLd schema={webSite} />
   <!-- ——— Héros ——— -->
   <section class="relative overflow-hidden">
     <div

@@ -5,7 +5,7 @@ import AiDisclaimer from '../../components/AiDisclaimer.astro';
 import JsonLd from '../../components/JsonLd.astro';
 import RelatedPosts from '../../components/RelatedPosts.astro';
 import { getPublishedPosts, getRelatedPosts } from '../../lib/posts';
-import { buildBreadcrumb } from '../../lib/seo';
+import { buildBreadcrumb, buildPerson } from '../../lib/seo';
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -32,11 +32,7 @@ const jsonLd = {
   datePublished: post.data.pubDate.toISOString(),
   dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
   image: new URL('/og-default.png', Astro.site).href,
-  author: {
-    '@type': 'Person',
-    name: 'Jérémie Flahaut',
-    url: new URL('/a-propos/', Astro.site).href,
-  },
+  author: buildPerson(Astro.site),
   publisher: {
     '@type': 'Organization',
     name: 'dev-fullstack',

@@ -1,5 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { buildProfilePage } from '../lib/seo';
+
+// Données structurées : fiche auteur (Person) reliée à GitHub/LinkedIn.
+const profilePage = buildProfilePage(Astro.site);
 
 const stackGroups = [
   { label: 'backend', items: ['Laravel', 'PHP 8', 'MySQL', 'MongoDB', 'Redis', 'API REST'] },
@@ -13,6 +18,7 @@ const stackGroups = [
   title="À propos · dev-fullstack"
   description="Jérémie Flahaut, développeur backend senior Laravel — 8 ans et plus à construire des applications qui durent. Stack, philosophie et side projects."
 >
+  <JsonLd schema={profilePage} />
   <article class="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:py-20">
     <p class="reveal font-mono text-sm text-accent" style="--d: 0s">~/a-propos</p>
     <h1

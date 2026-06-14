@@ -29,6 +29,7 @@ permissions: {}
 
 jobs:
   idee:
+    name: Idée
     runs-on: ubuntu-latest
     permissions:
       contents: read       # checkout : lecture des articles existants + docs
@@ -167,6 +168,7 @@ jobs:
 
   # Rédaction (+ relecture enchaînée) dans le même run, sauf si la soupape a sauté.
   rediger:
+    name: Article
     needs: idee
     if: needs.idee.outputs.skip == 'false'
     permissions:

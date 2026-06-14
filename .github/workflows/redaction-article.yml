@@ -38,6 +38,7 @@ permissions:
 
 jobs:
   rediger:
+    name: Rédaction
     runs-on: ubuntu-latest
     outputs:
       branch: ${{ steps.pr.outputs.branch }}

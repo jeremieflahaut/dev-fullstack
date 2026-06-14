@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AiDisclaimer from '../../components/AiDisclaimer.astro';
+import JsonLd from '../../components/JsonLd.astro';
 import { getPublishedPosts } from '../../lib/posts';
 
 export async function getStaticPaths() {
@@ -14,6 +15,32 @@ const { Content, remarkPluginFrontmatter } = await render(post);
 
 const formatDate = (date: Date) =>
   date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+// Données structurées schema.org pour les résultats enrichis Google.
+const articleUrl = new URL(`/blog/${post.id}/`, Astro.site);
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  inLanguage: 'fr-FR',
+  url: articleUrl.href,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl.href },
+  datePublished: post.data.pubDate.toISOString(),
+  dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
+  image: new URL('/og-default.png', Astro.site).href,
+  author: {
+    '@type': 'Person',
+    name: 'Jérémie Flahaut',
+    url: new URL('/a-propos/', Astro.site).href,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'dev-fullstack',
+    logo: { '@type': 'ImageObject', url: new URL('/apple-touch-icon.png', Astro.site).href },
+  },
+  ...(post.data.tags.length > 0 ? { keywords: post.data.tags } : {}),
+};
 ---
 
 <BaseLayout
@@ -21,6 +48,7 @@ const formatDate = (date: Date) =>
   description={post.data.description}
   ogType="article"
 >
+  <JsonLd schema={jsonLd} />
   <article class="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:py-20">
     <header>
       <p class="reveal font-mono text-xs text-muted" style="--d: 0s">

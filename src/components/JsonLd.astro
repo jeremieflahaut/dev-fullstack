@@ -1,0 +1,13 @@
+---
+// Rend un bloc de données structurées schema.org (JSON-LD).
+// `< ` est échappé en `<` pour empêcher une sortie prématurée de la balise
+// <script> si un champ contient « </script> ».
+interface Props {
+  schema: Record<string, unknown>;
+}
+
+const { schema } = Astro.props;
+const json = JSON.stringify(schema).replace(/</g, '\\u003c');
+---
+
+<script type="application/ld+json" is:inline set:html={json} />

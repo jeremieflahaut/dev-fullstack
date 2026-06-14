@@ -29,6 +29,8 @@ permissions:
 jobs:
   rediger:
     runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.pr.outputs.branch }}
     steps:
       - uses: actions/checkout@v6
 
@@ -85,6 +87,7 @@ jobs:
           npm run build
 
       - name: Pousser la branche et ouvrir la PR
+        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -103,3 +106,12 @@ jobs:
 
           git push -u origin "$BRANCH"
           gh pr create --base main --head "$BRANCH" --fill
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+  # Relecture factuelle automatique, enchaînée dès que la PR est ouverte (aucune étape manuelle).
+  relire:
+    needs: rediger
+    uses: ./.github/workflows/relecture-article.yml
+    secrets: inherit
+    with:
+      branch: ${{ needs.rediger.outputs.branch }}

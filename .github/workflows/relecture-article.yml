@@ -1,0 +1,106 @@
+# Relecture factuelle d'un article. Appelée automatiquement par « Rédaction d'article »
+# (workflow_call) après l'ouverture de la PR, ou relançable à la main (workflow_dispatch)
+# sur la branche d'une PR existante. L'agent vérifie chaque affirmation contre des sources,
+# corrige les inexactitudes (commit poussé sur la branche) et poste un rapport sur la PR.
+# Prérequis : secret CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token`) + GitHub App Claude installée.
+name: Relecture d'article
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branche de la PR à relire (ex. article/mon-slug)"
+        required: true
+        type: string
+
+# Une relecture à la fois par branche.
+concurrency:
+  group: relecture-${{ inputs.branch }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  relire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch }}
+          fetch-depth: 0 # pour disposer d'origin/main lors des `git diff`
+
+      - name: Configurer l'identité git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Relire et corriger l'article
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Tu es l'agent de relecture factuelle du blog dev-fullstack.net.
+
+            1. Lis docs/relecture.md (ta méthodologie) puis docs/redaction.md
+               (les règles éditoriales et de confidentialité à respecter dans
+               les corrections).
+            2. L'article à relire est le fichier src/content/blog/<slug>.md
+               modifié sur cette branche par rapport à origin/main
+               (`git diff --name-only origin/main...HEAD`).
+            3. Vérifie chaque affirmation selon docs/relecture.md : exactitude
+               factuelle et technique (via WebSearch/WebFetch sur des sources
+               officielles), validité des liens, re-contrôle de confidentialité,
+               cohérence interne. Ne te fie jamais à ta mémoire.
+            4. Corrige les inexactitudes dans le SEUL fichier de l'article,
+               corrections minimales et ciblées. N'invente jamais de chiffre,
+               de version ou de source. S'il y a des corrections, fais un commit
+               unique, conventionnel et en français (ex. `fix(blog): corrige les
+               inexactitudes relevées en relecture`), jamais de trailer
+               Co-Authored-By. S'il n'y a rien à corriger, ne commit pas. Ne
+               pousse PAS la branche : le workflow s'en charge.
+            5. Écris ton rapport (tableau verdict + corrections + points restants)
+               dans /tmp/relecture-report.md.
+          claude_args: |
+            --model claude-opus-4-8
+            --allowedTools "Read,Glob,Grep,Edit,Write,WebSearch,WebFetch,Bash(git:*)"
+
+      - name: Installer Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Vérifier le build
+        run: |
+          npm ci
+          npx astro check
+          npm run build
+
+      - name: Pousser les corrections et publier le rapport
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ inputs.branch }}
+        run: |
+          # Garde-fou : la relecture ne touche qu'à l'article.
+          HORS_PERIMETRE="$(git diff --name-only origin/main...HEAD | grep -v '^src/content/blog/' || true)"
+          if [ -n "$HORS_PERIMETRE" ]; then
+            echo "::error::Fichiers modifiés hors src/content/blog/ : $HORS_PERIMETRE"
+            exit 1
+          fi
+
+          git push origin "HEAD:$BRANCH" # no-op si la relecture n'a rien corrigé
+
+          if [ -f /tmp/relecture-report.md ]; then
+            gh pr comment "$BRANCH" --body-file /tmp/relecture-report.md
+          else
+            echo "::warning::Aucun rapport de relecture produit (/tmp/relecture-report.md absent)."
+          fi

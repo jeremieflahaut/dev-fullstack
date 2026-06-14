@@ -43,6 +43,9 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Déclenchée par le workflow « Idée d'article » : l'acteur est le bot
+          # github-actions, à autoriser explicitement (garde-fou non-human actor).
+          allowed_bots: "github-actions"
           prompt: |
             Tu es l'agent de rédaction du blog dev-fullstack.net.
 

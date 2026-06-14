@@ -74,30 +74,56 @@ jobs:
             echo "::notice::GSC_SA_KEY absent — idéation en recherche web seule."
           fi
 
-      - name: Authentification Google
-        id: auth
+      - name: Installer Python (pour GSC)
         if: steps.soupape.outputs.skip == 'false' && steps.gsccfg.outputs.enabled == 'true'
-        uses: google-github-actions/auth@v2
+        uses: actions/setup-python@v5
         with:
-          credentials_json: ${{ secrets.GSC_SA_KEY }}
-          token_format: access_token
-          access_token_scopes: https://www.googleapis.com/auth/webmasters.readonly
+          python-version: '3.12'
 
       - name: Export Search Console (90 j)
         if: steps.soupape.outputs.skip == 'false' && steps.gsccfg.outputs.enabled == 'true'
         env:
-          TOKEN: ${{ steps.auth.outputs.access_token }}
+          GSC_SA_KEY: ${{ secrets.GSC_SA_KEY }}
           SITE: 'sc-domain:dev-fullstack.net'   # propriété Domaine
         run: |
-          START=$(date -u -d '90 days ago' +%F)
-          END=$(date -u +%F)
-          SITE_ENC=$(jq -rn --arg s "$SITE" '$s|@uri')
-          curl -sS -X POST \
-            "https://www.googleapis.com/webmasters/v3/sites/${SITE_ENC}/searchAnalytics/query" \
-            -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-            -d "{\"startDate\":\"$START\",\"endDate\":\"$END\",\"dimensions\":[\"query\",\"page\"],\"rowLimit\":200,\"dataState\":\"all\"}" \
-            -o /tmp/gsc.json
-          echo "Lignes GSC récupérées : $(jq '.rows | length // 0' /tmp/gsc.json)"
+          # Auth directe depuis la clé du compte de service (JWT signé localement →
+          # token OAuth), sans l'API IAM Service Account Credentials ni rôle Token
+          # Creator. Best-effort : toute erreur GSC laisse l'idéation continuer en
+          # recherche web seule (le run ne plante pas).
+          python -m pip install --quiet google-auth requests || echo "::warning::pip GSC a échoué"
+          python - <<'PY'
+          import os, json, datetime, urllib.parse
+          try:
+              from google.oauth2 import service_account
+              from google.auth.transport.requests import Request
+              import requests
+              creds = service_account.Credentials.from_service_account_info(
+                  json.loads(os.environ["GSC_SA_KEY"]),
+                  scopes=["https://www.googleapis.com/auth/webmasters.readonly"],
+              )
+              creds.refresh(Request())
+              site = urllib.parse.quote(os.environ["SITE"], safe="")
+              end = datetime.date.today()
+              start = end - datetime.timedelta(days=90)
+              url = f"https://www.googleapis.com/webmasters/v3/sites/{site}/searchAnalytics/query"
+              body = {
+                  "startDate": start.isoformat(),
+                  "endDate": end.isoformat(),
+                  "dimensions": ["query", "page"],
+                  "rowLimit": 200,
+                  "dataState": "all",
+              }
+              resp = requests.post(
+                  url, headers={"Authorization": f"Bearer {creds.token}"}, json=body, timeout=30
+              )
+              resp.raise_for_status()
+              data = resp.json()
+              with open("/tmp/gsc.json", "w") as fh:
+                  json.dump(data, fh)
+              print("Lignes GSC récupérées :", len(data.get("rows", [])))
+          except Exception as e:
+              print(f"::warning::GSC indisponible, idéation en recherche web seule : {e}")
+          PY
 
       - name: Générer une idée orientée SEO
         if: steps.soupape.outputs.skip == 'false'

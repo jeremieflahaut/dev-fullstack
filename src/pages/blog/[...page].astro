@@ -1,0 +1,72 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import Pagination from '../../components/Pagination.astro';
+import { getPublishedPosts, getAllTags } from '../../lib/posts';
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const posts = await getPublishedPosts();
+  return paginate(posts, { pageSize: 10 });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+const tags = await getAllTags();
+
+const pageTitle =
+  page.currentPage > 1 ? `Blog (page ${page.currentPage}) · dev-fullstack` : 'Blog · dev-fullstack';
+---
+
+<BaseLayout
+  title={pageTitle}
+  description="Articles d'un développeur backend : Laravel, PHP, Docker — notes pratiques et retours d'expérience, en français."
+>
+  <section class="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:py-20">
+    <p class="reveal font-mono text-sm text-accent" style="--d: 0s">~/blog</p>
+    <h1
+      class="reveal mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl"
+      style="--d: 0.08s"
+    >
+      Le blog<span class="text-accent">.</span>
+    </h1>
+    <p class="reveal mt-4 max-w-xl leading-relaxed text-muted" style="--d: 0.16s">
+      Des notes concrètes sur Laravel, Docker et le développement web — les problèmes que je
+      rencontre, et comment je les résous.
+    </p>
+
+    {
+      tags.length > 0 && (
+        <p
+          class="reveal mt-6 flex flex-wrap items-center gap-2 font-mono text-xs text-muted"
+          style="--d: 0.2s"
+        >
+          <span class="text-muted/70">filtrer&nbsp;:</span>
+          {tags.map(({ tag, count }) => (
+            <a
+              href={`/blog/tags/${tag}/`}
+              class="border border-line px-1.5 py-0.5 transition-colors hover:border-accent hover:text-accent"
+            >
+              #{tag} <span class="text-muted/60">{count}</span>
+            </a>
+          ))}
+        </p>
+      )
+    }
+
+    <div class="reveal mt-10" style="--d: 0.24s">
+      {
+        page.data.map((post) => (
+          <PostCard
+            href={`/blog/${post.id}/`}
+            title={post.data.title}
+            description={post.data.description}
+            pubDate={post.data.pubDate}
+            tags={post.data.tags}
+          />
+        ))
+      }
+    </div>
+
+    <Pagination page={page} />
+  </section>
+</BaseLayout>

@@ -17,9 +17,8 @@ const date = pubDate.toLocaleDateString('fr-FR', {
 });
 ---
 
-<a
-  href={href}
-  class="group grid gap-1 border-t border-line py-5 sm:grid-cols-[8.5rem_1fr] sm:gap-6"
+<article
+  class="group relative grid gap-1 border-t border-line py-5 sm:grid-cols-[8.5rem_1fr] sm:gap-6"
 >
   <p class="font-mono text-xs leading-6 text-muted">
     {date}{minutes && <span> · {minutes} min</span>}
@@ -28,21 +27,30 @@ const date = pubDate.toLocaleDateString('fr-FR', {
     <h3
       class="font-display text-lg font-semibold tracking-tight text-fg transition-colors group-hover:text-accent"
     >
-      {title}
-      <span
-        class="ml-1 inline-block text-accent opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-100"
-        aria-hidden="true">❯</span
-      >
+      {/* Lien étiré : le ::after couvre toute la carte (cf. .relative parent),
+          ce qui la rend cliquable sans imbriquer d'ancres autour des tags. */}
+      <a href={href} class="after:absolute after:inset-0 after:content-['']">
+        {title}
+        <span
+          class="ml-1 inline-block text-accent opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-100"
+          aria-hidden="true">❯</span
+        >
+      </a>
     </h3>
     <p class="mt-1 text-sm leading-relaxed text-muted">{description}</p>
     {
       tags.length > 0 && (
-        <p class="mt-2 flex flex-wrap gap-2 font-mono text-[11px] text-muted">
+        <p class="relative z-10 mt-2 flex flex-wrap gap-2 font-mono text-[11px] text-muted">
           {tags.map((tag) => (
-            <span class="border border-line px-1.5 py-0.5">#{tag}</span>
+            <a
+              href={`/blog/tags/${tag}/`}
+              class="border border-line px-1.5 py-0.5 transition-colors hover:border-accent hover:text-accent"
+            >
+              #{tag}
+            </a>
           ))}
         </p>
       )
     }
   </div>
-</a>
+</article>

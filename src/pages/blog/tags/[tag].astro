@@ -1,0 +1,64 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { getPublishedPosts, getAllTags } from '../../../lib/posts';
+
+export const getStaticPaths = (async () => {
+  const [posts, tags] = await Promise.all([getPublishedPosts(), getAllTags()]);
+  return tags.map(({ tag }) => ({
+    params: { tag },
+    props: { tag, posts: posts.filter((post) => post.data.tags.includes(tag)) },
+  }));
+}) satisfies GetStaticPaths;
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`#${tag} · blog · dev-fullstack`}
+  description={`Articles du blog dev-fullstack sur le thème « ${tag} ».`}
+>
+  <section class="mx-auto w-full max-w-3xl px-4 py-16 sm:px-6 lg:py-20">
+    <p class="reveal font-mono text-sm text-muted" style="--d: 0s">
+      <a href="/blog/" class="transition-colors hover:text-accent">~/blog</a>
+      <span class="text-accent">❯</span>
+      <a href="/blog/tags/" class="transition-colors hover:text-accent">tags</a>
+      <span class="text-accent">❯</span>
+      {tag}
+    </p>
+    <h1
+      class="reveal mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl"
+      style="--d: 0.08s"
+    >
+      <span class="text-accent">#</span>{tag}
+    </h1>
+    <p class="reveal mt-4 leading-relaxed text-muted" style="--d: 0.16s">
+      {posts.length} article{posts.length > 1 ? 's' : ''} sur ce thème.
+    </p>
+
+    <div class="reveal mt-10" style="--d: 0.24s">
+      {
+        posts.map((post) => (
+          <PostCard
+            href={`/blog/${post.id}/`}
+            title={post.data.title}
+            description={post.data.description}
+            pubDate={post.data.pubDate}
+            tags={post.data.tags}
+          />
+        ))
+      }
+    </div>
+
+    <footer class="mt-12 border-t border-line pt-6">
+      <a
+        href="/blog/tags/"
+        class="group inline-flex items-center gap-2 font-mono text-sm text-muted transition-colors hover:text-accent"
+      >
+        <span class="inline-block transition-transform group-hover:-translate-x-0.5">←</span>
+        tous les tags
+      </a>
+    </footer>
+  </section>
+</BaseLayout>

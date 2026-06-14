@@ -203,3 +203,19 @@ jobs:
     with:
       idee: ${{ needs.idee.outputs.idee }}
       notes: ${{ needs.idee.outputs.notes }}
+      relire: false   # gérée en job frère ci-dessous (étiquette « Article / Relecture »)
+
+  # Relecture en job frère de la rédaction (et non nichée dedans) pour garder une
+  # étiquette à 2 segments « Article / Relecture » dans le graphe Actions.
+  relire:
+    name: Article
+    needs: rediger
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    uses: ./.github/workflows/relecture-article.yml
+    secrets: inherit
+    with:
+      branch: ${{ needs.rediger.outputs.branch }}

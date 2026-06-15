@@ -71,7 +71,7 @@ Désormais, le `now()` de la factory et le `now()` implicite derrière `isPast()
 
 ## Le piège des microsecondes : `freezeSecond()`
 
-Voici le piège que la documentation officielle survole, et qui produit les échecs les plus déroutants. Carbon mesure le temps à la microseconde près. Mais une colonne `TIMESTAMP` ou `DATETIME` de MySQL, par défaut, ne stocke que la seconde — les microsecondes sont tronquées à l'écriture.
+Voici le piège que la documentation officielle survole, et qui produit les échecs les plus déroutants. Carbon mesure le temps à la microseconde près. Mais une colonne `TIMESTAMP` ou `DATETIME` de MySQL, par défaut, ne stocke que la seconde — la fraction de seconde est arrondie à la seconde la plus proche à l'écriture.
 
 Conséquence : vous figez le temps à `10:30:00.123456`, vous insérez une ligne, et au moment de la relire la base vous renvoie `10:30:00.000000`. La comparaison `created_at == now()` échoue alors qu'à la seconde près, tout est correct.
 
@@ -161,7 +161,7 @@ Geler le temps, c'est transformer une entrée cachée et incontrôlable en une v
 Trois réflexes pour s'y retrouver :
 
 1. **`freezeTime()`** quand le test fait des calculs de durée en mémoire et n'a pas besoin que le temps avance.
-2. **`freezeSecond()`** dès qu'on compare une date relue depuis la base à `now()` — c'est lui qui désamorce le piège des microsecondes tronquées par MySQL.
+2. **`freezeSecond()`** dès qu'on compare une date relue depuis la base à `now()` — c'est lui qui désamorce le piège des fractions de seconde arrondies par MySQL.
 3. **`travel()` / `travelTo()`** pour franchir un seuil et vérifier qu'une règle bascule ; la variante closure de `travelTo()` restaure l'horloge toute seule.
 
 Le tout repose sur une discipline simple en amont : lire l'heure avec `now()`, jamais avec `new DateTime()`. À ce prix, une règle métier datée devient aussi déterministe que n'importe quel autre test.

@@ -106,7 +106,7 @@ Aucune de ces limites n'est rédhibitoire, mais elles rappellent que l'outil vé
 
 Le MCP Playwright comble le trou entre « l'assistant écrit du front » et « l'assistant sait si son front marche ». Pour un profil backend qui bricole du Svelte de temps en temps, c'est l'outil qui transforme une suite d'allers-retours manuels en une boucle que l'agent ferme seul.
 
-- Un `.mcp.json` de quatre lignes suffit à brancher le serveur ; `/mcp` confirme la connexion.
+- Un `.mcp.json` de quelques lignes suffit à brancher le serveur ; `/mcp` confirme la connexion.
 - L'agent lit la page via l'arbre d'accessibilité (`browser_snapshot`), un format texte fiable et économe, et garde la capture d'écran pour le visuel.
 - Il interagit, lit la console et corrige avant de vous rendre la main — à condition que le serveur de dev tourne et qu'on lui dise d'attendre les rendus.
 - Il valide le comportement, pas le design : le coup d'œil esthétique reste humain.

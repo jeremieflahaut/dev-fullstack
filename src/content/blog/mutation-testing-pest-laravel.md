@@ -81,14 +81,14 @@ Sur une vraie suite, c'est lent — Pest relance les tests une fois par mutant. 
 
 ## Lire les mutants survivants
 
-En fin de course, Pest affiche un **Mutation Score Indicator** (MSI) : le pourcentage de mutants tués sur l'ensemble des mutants générés. C'est l'indicateur qui compte, et il n'a rien à voir avec la couverture. Sur notre exemple, la couverture est à 100 % et le MSI s'effondre, parce que la plupart des mutations passent inaperçues.
+En fin de course, Pest affiche un **Mutation Score** (que tout le monde abrège MSI) : le pourcentage de mutants tués sur l'ensemble des mutants générés. C'est l'indicateur qui compte, et il n'a rien à voir avec la couverture. Sur notre exemple, la couverture est à 100 % et le MSI s'effondre, parce que la plupart des mutations passent inaperçues.
 
 Pest distingue deux familles de survivants, et la nuance est utile :
 
-- **Untested** — aucun test n'exécute la ligne mutée. C'est un trou de couverture pur.
-- **Escaped** — la ligne *est* exécutée, mais aucun test ne bronche quand on la sabote. C'est l'assertion trop molle, le cas le plus instructif.
+- **Uncovered** — aucun test n'exécute la ligne mutée. C'est un trou de couverture pur.
+- **Untested** — la ligne *est* exécutée, mais aucun test ne bronche quand on la sabote. C'est l'assertion trop molle, le cas le plus instructif.
 
-Notre `toBeInt()` produit exactement des mutants *escaped* : Pest signale qu'en remplaçant `return 20` par `return 0`, ou en changeant la borne `>= 10`, la suite reste verte. La correction ne touche pas le code de production — elle muscle les assertions et teste les bornes :
+Notre `toBeInt()` produit exactement des mutants *untested* : Pest signale qu'en remplaçant `return 20` par `return 0`, ou en changeant la borne `>= 10`, la suite reste verte. La correction ne touche pas le code de production — elle muscle les assertions et teste les bornes :
 
 ```php
 it('accorde 20 % à partir de 10 unités', function () {
@@ -135,7 +135,7 @@ Enfin, **le mutation testing ne crée pas de tests, il juge ceux qui existent**.
 Une suite verte à 100 % de couverture peut ne rien vérifier — la couverture compte les lignes exécutées, pas les comportements contrôlés. Pest 3 comble ce trou en sabotant votre code pour voir si vos tests réagissent.
 
 - Lancez `./vendor/bin/pest --mutate --parallel`, avec Xdebug 3+ ou PCOV installé et `covers()` (ou `mutates()`) pour cibler le code.
-- Lisez le MSI, pas la couverture : un mutant *escaped* dénonce une assertion trop molle, un mutant *untested* un trou de couverture.
+- Lisez le MSI, pas la couverture : un mutant *untested* dénonce une assertion trop molle, un mutant *uncovered* un trou de couverture.
 - Corrigez en testant les valeurs exactes et les bornes, là où `toBeInt()` se contentait du vague.
 - En CI, posez un seuil avec `--min=` et `--covered-only`, mais acceptez le coût en temps et les mutants équivalents.
 

@@ -5,7 +5,7 @@ pubDate: 2026-06-16
 tags: ["ia", "svelte"]
 ---
 
-Je suis à l'aise sur un backend, beaucoup moins devant un navigateur. Quand il m'arrive de sortir une petite app Svelte, le même schéma se répète : je demande un composant à Claude Code, il me pond du code propre… que je dois aller tester moi-même, copier l'erreur de la console, la recoller dans le chat, recommencer. L'assistant code à l'aveugle, et c'est moi qui fais l'aller-retour entre l'éditeur et le navigateur. Le serveur MCP Playwright change cette mécanique : il donne à l'agent un navigateur qu'il pilote tout seul.
+Sur un backend, Claude Code est largement autonome : il écrit du code, lance les tests, lit ce qui casse et recommence sans moi. Dès qu'il m'arrive de sortir une petite app Svelte, cette autonomie se brise : je demande un composant à Claude Code, il me pond du code propre… que je dois aller tester moi-même, copier l'erreur de la console, la recoller dans le chat, recommencer. L'assistant code à l'aveugle, et c'est moi qui referme la boucle à sa place, entre l'éditeur et le navigateur. Le serveur MCP Playwright supprime cet aller-retour : il donne à l'agent un navigateur qu'il pilote seul, et lui rend en front l'autonomie qu'il a déjà en back.
 
 ## Le chaînon manquant : un navigateur que l'agent pilote
 
@@ -85,11 +85,11 @@ Le serveur de dev tourne (`npm run dev`, sur `localhost:5173`). Au lieu de décr
 
 L'agent lit là, noir sur blanc, que l'alerte est présente et que le bouton est bien désactivé — sans que j'aie ouvert le navigateur. S'il avait manqué un `preventDefault`, `browser_console_messages` aurait remonté l'erreur ou le rechargement de page, et il aurait corrigé avant même de me rendre la main. La boucle « écris → teste → corrige » se fait de son côté, là où je faisais l'aller-retour manuellement.
 
-## Ce que ça change quand on n'est pas à l'aise en front
+## Pourquoi ça rend l'agent plus autonome
 
-Sur du backend, je sais lire un test qui échoue et remonter à la cause. Sur du front, mon angle mort, c'est l'écart entre le code et le rendu : un composant qui « compile » mais ne réagit pas, un état Svelte qui ne se propage pas, une erreur silencieuse dans la console. Ce sont précisément les choses qu'un test unitaire ne couvre pas et que, faute de réflexes, je repère lentement.
+L'autonomie d'un agent tient à une question : peut-il vérifier lui-même le résultat de ce qu'il écrit ? En backend, oui — la suite de tests est sa boucle de feedback : il l'exécute et lit le verdict sans intermédiaire. En frontend, cette boucle passait par un humain, parce que le rendu vit dans un navigateur que l'agent ne voyait pas. Savoir si un composant réagit, si un état Svelte se propage, si la console crache une erreur silencieuse supposait que quelqu'un regarde et rapporte — l'agent s'arrêtait pile là où le test unitaire s'arrête.
 
-Donner à l'agent les yeux sur la page réelle déplace ce travail d'inspection vers lui. Il vérifie le comportement observable — l'état d'un bouton, l'apparition d'un message, l'absence d'erreur console — et je relis un diff déjà confronté au rendu, pas une hypothèse. Pour quelqu'un qui touche au front par intermittence, c'est moins de friction sur la partie où j'en ai le plus.
+Le retour navigateur déplace cette frontière. L'agent inspecte désormais lui-même le comportement observable — l'état d'un bouton, l'apparition d'un message, l'absence d'erreur console — et peut donc itérer sans me solliciter à chaque tour. Je ne relis plus une hypothèse de code, mais un diff déjà confronté au rendu. La bascule n'est pas que je code « mieux » le front : c'est que l'agent y travaille en boucle fermée, comme il le fait déjà en back.
 
 ## Les limites, parce qu'il y en a
 
@@ -104,7 +104,7 @@ Aucune de ces limites n'est rédhibitoire, mais elles rappellent que l'outil vé
 
 ## Ce qu'il faut retenir
 
-Le MCP Playwright comble le trou entre « l'assistant écrit du front » et « l'assistant sait si son front marche ». Pour un profil backend qui bricole du Svelte de temps en temps, c'est l'outil qui transforme une suite d'allers-retours manuels en une boucle que l'agent ferme seul.
+Le MCP Playwright comble le trou entre « l'assistant écrit du front » et « l'assistant sait si son front marche ». Concrètement, il transforme une suite d'allers-retours manuels en une boucle que l'agent ferme seul — et lui rend, sur la partie front, l'autonomie qu'il avait déjà partout ailleurs.
 
 - Un `.mcp.json` de quelques lignes suffit à brancher le serveur ; `/mcp` confirme la connexion.
 - L'agent lit la page via l'arbre d'accessibilité (`browser_snapshot`), un format texte fiable et économe, et garde la capture d'écran pour le visuel.

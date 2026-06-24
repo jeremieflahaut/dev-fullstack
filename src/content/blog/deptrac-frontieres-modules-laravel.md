@@ -95,11 +95,8 @@ vendor/bin/deptrac analyse
 Et Deptrac refuse :
 
 ```
------- Report -------
-Commandes must not depend on FacturationInterne
-  App\Modules\Commandes\Services\ValidationCommande:8
-    App\Modules\Facturation\Internal\LigneFactureRepository
-------
+App\Modules\Commandes\Services\ValidationCommande::8 must not depend on App\Modules\Facturation\Internal\LigneFactureRepository (Commandes on FacturationInterne)
+
 Violations: 1
 ```
 
@@ -115,7 +112,7 @@ La parade est la **baseline** : on photographie les violations actuelles, on les
 vendor/bin/deptrac analyse --formatter=baseline
 ```
 
-Cette commande génère un fichier `deptrac.baseline.yaml` contenant la liste des violations existantes sous une clé `skip_violations`. Deptrac le relit automatiquement à chaque analyse : les violations gelées ne font plus échouer le build, mais toute nouvelle dépendance croisée, elle, est rejetée. La dette ne grossit plus, et on la résorbe au rythme où on retouche les fichiers concernés — chaque ligne supprimée de la baseline est un petit progrès mesurable.
+Cette commande génère un fichier `deptrac.baseline.yaml` contenant la liste des violations existantes sous une clé `skip_violations`. Ce fichier ne se charge pas tout seul, il faut l'importer dans `deptrac.yaml` via une section `imports` (`imports: [deptrac.baseline.yaml]`). Une fois en place, les violations gelées ne font plus échouer le build, mais toute nouvelle dépendance croisée, elle, est rejetée. La dette ne grossit plus, et on la résorbe au rythme où on retouche les fichiers concernés — chaque ligne supprimée de la baseline est un petit progrès mesurable.
 
 ## La frontière devient réelle en CI
 

@@ -169,7 +169,7 @@ public function presentList(Collection $orders): array
 }
 ```
 
-On retrouve deux requêtes au lieu d'une jointure, mais on garde la maîtrise des accès, et le N+1 est écarté. Ce n'est pas gratuit : c'est du code que l'eager loading nous offrait pour rien. C'est le coût réel du découplage, et il faut l'accepter en connaissance de cause plutôt que le découvrir en production.
+On retrouve les deux mêmes requêtes que l'eager loading — qui ne fait pas de jointure mais un `whereIn` séparé sur les IDs —, mais on garde la maîtrise des accès, et le N+1 est écarté. Ce n'est pas gratuit : c'est du code que l'eager loading nous offrait pour rien. C'est le coût réel du découplage, et il faut l'accepter en connaissance de cause plutôt que le découvrir en production.
 
 ## Quand le couplage direct reste acceptable
 

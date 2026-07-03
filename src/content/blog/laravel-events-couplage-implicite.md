@@ -120,7 +120,7 @@ public function payer(Order $order): JsonResponse
 }
 ```
 
-Pour savoir ce qui arrive ensuite — facture, décrément de stock, notification — il faut ouvrir `EventServiceProvider`, lister les listeners, vérifier lesquels sont en file, deviner leur ordre. Le parcours est réparti, l'ordre non garanti, les échecs silencieux.
+Pour savoir ce qui arrive ensuite — facture, décrément de stock, notification — il faut parcourir le répertoire `Listeners` que Laravel auto-découvre, sans les recenser nulle part, repérer ceux qui écoutent cet event, vérifier lesquels sont en file, deviner leur ordre. Le parcours est réparti, l'ordre non garanti, les échecs silencieux.
 
 Orchestré explicitement dans une Action, le même flux se lit de haut en bas :
 

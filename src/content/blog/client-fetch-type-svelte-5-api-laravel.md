@@ -92,11 +92,20 @@ type CollectionPaginee<T> = {
   meta: { current_page: number; last_page: number; total: number };
 };
 
-export function recupererCollection<T>(
+export async function recupererCollection<T>(
   url: string,
   signal?: AbortSignal,
 ): Promise<CollectionPaginee<T>> {
-  return recupererResource<CollectionPaginee<T>>(url, signal);
+  const reponse = await fetch(url, {
+    headers: { Accept: 'application/json' },
+    signal,
+  });
+
+  if (!reponse.ok) {
+    throw await ErreurApi.depuis(reponse);
+  }
+
+  return (await reponse.json()) as CollectionPaginee<T>;
 }
 ```
 

@@ -65,7 +65,7 @@ Le résultat, c'est un JSON compact et vérifiable — chaque entrée pointe ver
     }
   ],
   "tool_errors": [
-    { "outil": "Bash", "signature": "make: command not found", "occurrences": 4 }
+    { "outil": "Bash", "signature": "make: command not found", "occurrences": 2 }
   ],
   "rejections": [
     { "action": "suppression de src/legacy/", "compte": 1 }
@@ -108,7 +108,7 @@ Concrètement, la couche 2 me rend une liste de ce genre :
     "theme": "make indisponible",
     "correctif": "gap-environnement",
     "proposition": "Ajouter make à l'image Docker de dev.",
-    "preuve": "tool_errors: make: command not found x4"
+    "preuve": "tool_errors: make: command not found x2"
   }
 ]
 ```

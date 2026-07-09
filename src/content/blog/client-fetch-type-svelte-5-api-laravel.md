@@ -15,25 +15,25 @@ Voici à quoi ressemble un composant qui charge une liste, dans sa version « ch
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  let utilisateurs = $state<any[]>([]);
-  let chargement = $state(true);
-  let erreur = $state<string | null>(null);
+  let users = $state<any[]>([]);
+  let loading = $state(true);
+  let error = $state<string | null>(null);
 
   onMount(async () => {
     try {
-      const reponse = await fetch('/api/users');
-      const corps = await reponse.json();
-      utilisateurs = corps.data;
+      const response = await fetch('/api/users');
+      const body = await response.json();
+      users = body.data;
     } catch (e) {
-      erreur = 'Impossible de charger';
+      error = 'Impossible de charger';
     } finally {
-      chargement = false;
+      loading = false;
     }
   });
 </script>
 ```
 
-Trois défauts sautent aux yeux. La réponse est typée `any` : personne ne sait ce qu'il y a dans `corps.data`, et le premier `utilisateur.nom` au lieu de `utilisateur.name` ne pétera qu'à l'exécution. Un `fetch` en échec réseau et un `4xx` renvoyé par Laravel finissent dans le même `catch` avec le même message vague. Et ces trois variables — `utilisateurs`, `chargement`, `erreur` — vivent leur vie chacune de leur côté, à recopier dans le composant suivant.
+Trois défauts sautent aux yeux. La réponse est typée `any` : personne ne sait ce qu'il y a dans `body.data`, et le premier `user.nom` au lieu de `user.name` ne pétera qu'à l'exécution. Un `fetch` en échec réseau et un `4xx` renvoyé par Laravel finissent dans le même `catch` avec le même message vague. Et ces trois variables — `users`, `loading`, `error` — vivent leur vie chacune de leur côté, à recopier dans le composant suivant.
 
 ## Typer la forme d'une réponse Laravel
 
@@ -41,141 +41,141 @@ Une API Resource de Laravel a une forme régulière : la donnée est toujours en
 
 ```ts
 // api.svelte.ts
-type ResourceReponse<T> = { data: T };
+type ResourceResponse<T> = { data: T };
 
-export class ErreurApi extends Error {
+export class ApiError extends Error {
   constructor(
-    public readonly statut: number,
+    public readonly status: number,
     message: string,
   ) {
     super(message);
-    this.name = 'ErreurApi';
+    this.name = 'ApiError';
   }
 
-  static async depuis(reponse: Response): Promise<ErreurApi> {
-    let message = `Erreur ${reponse.status}`;
+  static async from(response: Response): Promise<ApiError> {
+    let message = `Erreur ${response.status}`;
     try {
-      const corps = await reponse.json();
-      if (corps?.message) message = corps.message;
+      const body = await response.json();
+      if (body?.message) message = body.message;
     } catch {
       // corps non-JSON : on garde le message par défaut
     }
-    return new ErreurApi(reponse.status, message);
+    return new ApiError(response.status, message);
   }
 }
 
-export async function recupererResource<T>(
+export async function fetchResource<T>(
   url: string,
   signal?: AbortSignal,
 ): Promise<T> {
-  const reponse = await fetch(url, {
+  const response = await fetch(url, {
     headers: { Accept: 'application/json' },
     signal,
   });
 
-  if (!reponse.ok) {
-    throw await ErreurApi.depuis(reponse);
+  if (!response.ok) {
+    throw await ApiError.from(response);
   }
 
-  const corps = (await reponse.json()) as ResourceReponse<T>;
-  return corps.data;
+  const body = (await response.json()) as ResourceResponse<T>;
+  return body.data;
 }
 ```
 
-La fonction est générique : `recupererResource<Utilisateur[]>(…)` renvoie un `Promise<Utilisateur[]>` déjà débarrassé de l'enveloppe `data`. Le typage colle à la réalité du back sans qu'aucun composant n'ait à connaître cette convention. Et une réponse `422` de Laravel ne se confond plus avec une coupure réseau : la première lève une `ErreurApi` avec son statut et le message du serveur, la seconde reste une exception `fetch` classique.
+La fonction est générique : `fetchResource<User[]>(…)` renvoie un `Promise<User[]>` déjà débarrassé de l'enveloppe `data`. Le typage colle à la réalité du back sans qu'aucun composant n'ait à connaître cette convention. Et une réponse `422` de Laravel ne se confond plus avec une coupure réseau : la première lève une `ApiError` avec son statut et le message du serveur, la seconde reste une exception `fetch` classique.
 
 Pour une collection paginée, Laravel ajoute une clé `meta`. Il suffit d'un second type et d'une variante qui ne déballe pas :
 
 ```ts
-type CollectionPaginee<T> = {
+type PaginatedCollection<T> = {
   data: T[];
   meta: { current_page: number; last_page: number; total: number };
 };
 
-export async function recupererCollection<T>(
+export async function fetchCollection<T>(
   url: string,
   signal?: AbortSignal,
-): Promise<CollectionPaginee<T>> {
-  const reponse = await fetch(url, {
+): Promise<PaginatedCollection<T>> {
+  const response = await fetch(url, {
     headers: { Accept: 'application/json' },
     signal,
   });
 
-  if (!reponse.ok) {
-    throw await ErreurApi.depuis(reponse);
+  if (!response.ok) {
+    throw await ApiError.from(response);
   }
 
-  return (await reponse.json()) as CollectionPaginee<T>;
+  return (await response.json()) as PaginatedCollection<T>;
 }
 ```
 
 ## Un état, pas trois booléens
 
-Avant de brancher tout ça sur un composant, une décision de modélisation. Les trois variables `chargement`, `erreur` et `data` peuvent, ensemble, décrire des situations qui n'existent pas : chargement à `true` *et* une erreur présente, ou des données *et* une erreur en même temps. Chaque combinaison impossible est un `if` de trop à écrire dans le template, et un bug qui attend.
+Avant de brancher tout ça sur un composant, une décision de modélisation. Les trois variables `loading`, `error` et `data` peuvent, ensemble, décrire des situations qui n'existent pas : chargement à `true` *et* une erreur présente, ou des données *et* une erreur en même temps. Chaque combinaison impossible est un `if` de trop à écrire dans le template, et un bug qui attend.
 
-La réponse est un type discriminé : un seul champ `statut` qui rend les états mutuellement exclusifs.
+La réponse est un type discriminé : un seul champ `status` qui rend les états mutuellement exclusifs.
 
 ```ts
-type Etat<T> =
-  | { statut: 'inactif' }
-  | { statut: 'chargement' }
-  | { statut: 'succes'; data: T }
-  | { statut: 'erreur'; erreur: ErreurApi };
+type State<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: ApiError };
 ```
 
-Impossible d'être en `chargement` et de porter une `erreur` : le compilateur l'interdit. On expose ensuite `data`, `chargement` et `erreur` comme de simples lectures dérivées de ce statut unique.
+Impossible d'être en `loading` et de porter une `error` : le compilateur l'interdit. On expose ensuite `data`, `loading` et `error` comme de simples lectures dérivées de ce statut unique.
 
 ## La classe réactive
 
 C'est là que les runes entrent en jeu. Une classe porte l'état dans un champ `$state`, et l'expose via des accesseurs. Point important : on **n'exporte pas** directement une variable `$state` réassignable depuis un module (`export let data = $state(…)` déclenche l'erreur `state_invalid_export`). On encapsule l'état dans une classe, et c'est la classe qu'on exporte — chaque composant instancie la sienne.
 
 ```ts
-export class RessourceApi<T> {
-  #etat = $state<Etat<T>>({ statut: 'inactif' });
-  #controleur: AbortController | null = null;
+export class ApiResource<T> {
+  #state = $state<State<T>>({ status: 'idle' });
+  #controller: AbortController | null = null;
 
   constructor(private readonly loader: (signal: AbortSignal) => Promise<T>) {}
 
-  get chargement(): boolean {
-    return this.#etat.statut === 'chargement';
+  get loading(): boolean {
+    return this.#state.status === 'loading';
   }
 
   get data(): T | null {
-    return this.#etat.statut === 'succes' ? this.#etat.data : null;
+    return this.#state.status === 'success' ? this.#state.data : null;
   }
 
-  get erreur(): ErreurApi | null {
-    return this.#etat.statut === 'erreur' ? this.#etat.erreur : null;
+  get error(): ApiError | null {
+    return this.#state.status === 'error' ? this.#state.error : null;
   }
 
-  async charger(): Promise<void> {
-    this.#controleur?.abort();
-    const controleur = new AbortController();
-    this.#controleur = controleur;
-    this.#etat = { statut: 'chargement' };
+  async load(): Promise<void> {
+    this.#controller?.abort();
+    const controller = new AbortController();
+    this.#controller = controller;
+    this.#state = { status: 'loading' };
 
     try {
-      const data = await this.loader(controleur.signal);
-      this.#etat = { statut: 'succes', data };
-    } catch (erreur) {
-      if (controleur.signal.aborted) {
+      const data = await this.loader(controller.signal);
+      this.#state = { status: 'success', data };
+    } catch (error) {
+      if (controller.signal.aborted) {
         return; // annulation volontaire : on ne touche pas à l'état
       }
-      this.#etat = {
-        statut: 'erreur',
-        erreur:
-          erreur instanceof ErreurApi
-            ? erreur
-            : new ErreurApi(0, 'Impossible de joindre le serveur.'),
+      this.#state = {
+        status: 'error',
+        error:
+          error instanceof ApiError
+            ? error
+            : new ApiError(0, 'Impossible de joindre le serveur.'),
       };
     }
   }
 }
 ```
 
-La classe ne connaît pas l'URL : elle reçoit un `loader`, une fonction qui prend un `AbortSignal` et renvoie la donnée. C'est ce qui la rend générique — elle enveloppe aussi bien `recupererResource` qu'une collection paginée, sans rien savoir de la forme.
+La classe ne connaît pas l'URL : elle reçoit un `loader`, une fonction qui prend un `AbortSignal` et renvoie la donnée. C'est ce qui la rend générique — elle enveloppe aussi bien `fetchResource` qu'une collection paginée, sans rien savoir de la forme.
 
-Le `charger()` gère aussi l'annulation. À chaque appel, il coupe la requête précédente (`this.#controleur?.abort()`) avant d'en lancer une nouvelle. Sans ça, sur un champ de recherche qui déclenche un `fetch` à chaque frappe, une réponse lente arrivant après une réponse rapide écraserait le bon résultat. Ici, la requête annulée lève une exception qu'on ignore explicitement grâce à `signal.aborted` : l'état n'est pas pollué par une erreur qui n'en est pas une.
+Le `load()` gère aussi l'annulation. À chaque appel, il coupe la requête précédente (`this.#controller?.abort()`) avant d'en lancer une nouvelle. Sans ça, sur un champ de recherche qui déclenche un `fetch` à chaque frappe, une réponse lente arrivant après une réponse rapide écraserait le bon résultat. Ici, la requête annulée lève une exception qu'on ignore explicitement grâce à `signal.aborted` : l'état n'est pas pollué par une erreur qui n'en est pas une.
 
 ## Côté composant
 
@@ -183,30 +183,30 @@ Le composant, lui, maigrit d'autant. Plus de `onMount`, plus de `try/catch`, plu
 
 ```svelte
 <script lang="ts">
-  import { RessourceApi, recupererResource } from './api.svelte';
-  import type { Utilisateur } from './types';
+  import { ApiResource, fetchResource } from './api.svelte';
+  import type { User } from './types';
 
-  const utilisateurs = new RessourceApi((signal) =>
-    recupererResource<Utilisateur[]>('/api/users', signal),
+  const users = new ApiResource((signal) =>
+    fetchResource<User[]>('/api/users', signal),
   );
 
-  utilisateurs.charger();
+  users.load();
 </script>
 
-{#if utilisateurs.chargement}
+{#if users.loading}
   <p>Chargement…</p>
-{:else if utilisateurs.erreur}
-  <p role="alert">{utilisateurs.erreur.message}</p>
-{:else if utilisateurs.data}
+{:else if users.error}
+  <p role="alert">{users.error.message}</p>
+{:else if users.data}
   <ul>
-    {#each utilisateurs.data as u (u.id)}
+    {#each users.data as u (u.id)}
       <li>{u.name}</li>
     {/each}
   </ul>
 {/if}
 ```
 
-Le `{#each utilisateurs.data as u}` est typé : `u` est un `Utilisateur`, l'éditeur autocomplète `u.name` et refuse `u.nom`. Le re-fetch — après un formulaire, un filtre, un bouton « rafraîchir » — se résume à rappeler `utilisateurs.charger()` : l'annulation de la requête en vol est déjà prise en charge. Et parce que les accesseurs lisent un champ `$state`, la réactivité de Svelte 5 rafraîchit le template toute seule à chaque changement de statut.
+Le `{#each users.data as u}` est typé : `u` est un `User`, l'éditeur autocomplète `u.name` et refuse `u.nom`. Le re-fetch — après un formulaire, un filtre, un bouton « rafraîchir » — se résume à rappeler `users.load()` : l'annulation de la requête en vol est déjà prise en charge. Et parce que les accesseurs lisent un champ `$state`, la réactivité de Svelte 5 rafraîchit le template toute seule à chaque changement de statut.
 
 ## Quand ne pas faire ça
 
@@ -214,7 +214,7 @@ Ce client vise un cas précis : une **petite SPA côté client** qui tape sur un
 
 Si vous êtes sur **SvelteKit** avec du rendu serveur, sa fonction `load` charge la donnée avant le rendu, gère les états et évite le flash de chargement — inutile de la court-circuiter avec un `fetch` client. Et si vos besoins montent en gamme (cache partagé entre écrans, invalidation, retentatives, requêtes dépendantes), une bibliothèque comme **TanStack Query** fait tout ça sérieusement ; réécrire son équivalent serait une fausse économie.
 
-Enfin, le piège à connaître : une instance créée **au niveau module** (`export const utilisateurs = new RessourceApi(…)`) est partagée. Côté client uniquement, c'est parfois pratique pour un cache global. Mais en contexte SSR, ce `$state` de module est partagé entre toutes les requêtes serveur — donc entre tous les utilisateurs. On ne s'en soucie pas dans une SPA pur client, mais c'est exactement pour ça qu'ici chaque composant instancie *sa* ressource.
+Enfin, le piège à connaître : une instance créée **au niveau module** (`export const users = new ApiResource(…)`) est partagée. Côté client uniquement, c'est parfois pratique pour un cache global. Mais en contexte SSR, ce `$state` de module est partagé entre toutes les requêtes serveur — donc entre tous les utilisateurs. On ne s'en soucie pas dans une SPA pur client, mais c'est exactement pour ça qu'ici chaque composant instancie *sa* ressource.
 
 ## Ce qu'il faut retenir
 

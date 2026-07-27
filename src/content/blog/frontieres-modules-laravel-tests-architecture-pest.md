@@ -30,7 +30,7 @@ La convention tient en une phrase : `Internal` est privé au module, `Contracts`
 
 ## La frontière comme contrat exécutable
 
-Pest 3 embarque les tests d'architecture. On y décrit des règles sur les namespaces et leurs usages, et Pest les vérifie en analysant le code. La règle qui aurait attrapé notre incident tient en trois lignes :
+Pest embarque les tests d'architecture depuis la v2. On y décrit des règles sur les namespaces et leurs usages, et Pest les vérifie en analysant le code. La règle qui aurait attrapé notre incident tient en trois lignes :
 
 ```php
 arch('un module ne touche jamais l’interne d’un autre')

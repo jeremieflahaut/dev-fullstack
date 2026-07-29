@@ -94,7 +94,7 @@ Le point commun : la dépendance ne porte que sur `Contracts/` et sur les DTO de
 
 Soyons honnête sur les limites. Les tests d'archi Pest raisonnent par espace de noms : ils voient très bien « le catalogue importe la facturation », mais ils peinent à exprimer des directions de dépendance fines. « Le domaine peut dépendre du partagé, jamais l'inverse, et la couche HTTP ne parle qu'au domaine » devient vite un empilement de règles `not->toUse()` difficile à relire. C'est le moment de sortir l'outil dédié.
 
-[Deptrac](https://github.com/qossmic/deptrac) modélise le code en *layers* et n'autorise les dépendances qu'entre couches déclarées. Un `deptrac.yaml` décrit les frontières une fois pour toutes :
+[Deptrac](https://github.com/deptrac/deptrac) modélise le code en *layers* et n'autorise les dépendances qu'entre couches déclarées. Un `deptrac.yaml` décrit les frontières une fois pour toutes :
 
 ```yaml
 deptrac:

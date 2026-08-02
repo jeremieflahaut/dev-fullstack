@@ -1,11 +1,11 @@
 ---
-title: "Organiser son code Laravel par domaine, sans sauter dans le modular monolith"
-description: "Quand une app Laravel grossit, la mode pousse vers le modular monolith, le DDD ou l'hexagonal. L'étape intermédiaire — ranger app/ par domaine — tient bien plus longtemps."
+title: "Organiser son code Laravel par domaine, sans sauter dans le monolithe modulaire"
+description: "Quand une app Laravel grossit, la mode pousse vers le monolithe modulaire, le DDD ou l'hexagonal. L'étape intermédiaire — ranger app/ par domaine — tient bien plus longtemps."
 pubDate: 2026-07-31
 tags: ["laravel", "php", "architecture"]
 ---
 
-Une app Laravel qui grossit finit toujours par déclencher la même conversation : « il faudrait une vraie architecture ». Et les articles qui remontent en premier vendent tous la même chose — un modular monolith avec un dossier `modules/` à la racine, ou une couche DDD, ou de l'hexagonal avec ses ports et ses adapters. C'est séduisant sur un schéma. En pratique, on saute une étape intermédiaire qui coûte presque rien et qui repousse le besoin de tout ça de plusieurs mois. Cet article défend la retenue : ranger par domaine dans `app/`, et n'ériger une frontière de module que sur des signaux concrets.
+Une app Laravel qui grossit finit toujours par déclencher la même conversation : « il faudrait une vraie architecture ». Et les articles qui remontent en premier vendent tous la même chose — un monolithe modulaire avec un dossier `modules/` à la racine, ou une couche DDD, ou de l'hexagonal avec ses ports et ses adapters. C'est séduisant sur un schéma. En pratique, on saute une étape intermédiaire qui coûte presque rien et qui repousse le besoin de tout ça de plusieurs mois. Cet article défend la retenue : ranger par domaine dans `app/`, et n'ériger une frontière de module que sur des signaux concrets.
 
 ## Ranger par type technique tient plus longtemps qu'on ne le dit
 
@@ -123,7 +123,7 @@ Cette frontière-là ne coûte presque rien : une classe publique, une conventio
 
 ## Ce qu'il faut retenir
 
-La progression saine d'une app Laravel qui grossit n'est pas « type technique » puis directement « modular monolith ». Il y a une marche intermédiaire, et elle porte l'essentiel du gain pour un coût quasi nul :
+La progression saine d'une app Laravel qui grossit n'est pas « type technique » puis directement « monolithe modulaire ». Il y a une marche intermédiaire, et elle porte l'essentiel du gain pour un coût quasi nul :
 
 1. **Rangez par domaine dans `app/`** dès que le code d'un même sujet est éparpillé. Le PSR-4 est déjà en place, l'opération se résume à déplacer des fichiers et corriger des `namespace`.
 2. **Mesurez le couplage, pas la taille des dossiers.** Un dossier plein n'est pas un problème ; un changement métier qui touche cinq dossiers sans lien en est un.

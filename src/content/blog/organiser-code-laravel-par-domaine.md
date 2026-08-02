@@ -31,10 +31,10 @@ app/
     Invoice.php
     Product.php
   Actions/
-    GenererFacture.php
-    PublierProduit.php
+    GenerateInvoice.php
+    PublishProduct.php
   Services/
-    TaxeService.php
+    TaxService.php
 ```
 
 Et la même chose regroupée par domaine :
@@ -44,12 +44,12 @@ app/
   Billing/
     InvoiceController.php
     Invoice.php
-    GenererFacture.php
-    TaxeService.php
+    GenerateInvoice.php
+    TaxService.php
   Catalog/
     ProductController.php
     Product.php
-    PublierProduit.php
+    PublishProduct.php
 ```
 
 Rien de magique ici : on a juste déplacé des fichiers et changé leur `namespace`. Le point important est le coût de l'opération, et il est quasi nul. Le `composer.json` d'une app Laravel mappe déjà `App\` sur `app/` en PSR-4 :
@@ -104,15 +104,15 @@ use App\Catalog\CatalogApi;
 class BillingApi
 {
     public function __construct(
-        private GenererFacture $generer,
+        private GenerateInvoice $generate,
         private CatalogApi $catalog,
     ) {}
 
-    public function facturerCommande(int $commandeId): Invoice
+    public function invoiceOrder(int $orderId): Invoice
     {
-        $lignes = $this->catalog->lignesDeCommande($commandeId);
+        $lines = $this->catalog->orderLines($orderId);
 
-        return $this->generer->handle($lignes);
+        return $this->generate->handle($lines);
     }
 }
 ```

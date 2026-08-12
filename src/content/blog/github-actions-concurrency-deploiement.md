@@ -9,9 +9,9 @@ Vous poussez un correctif sur `main`, puis un second trente secondes plus tard p
 
 ## Le modèle mental exact d'un groupe de concurrence
 
-Un groupe de concurrence, ce n'est pas une file d'attente illimitée. C'est un emplacement qui contient **au plus deux runs** : un run *en cours d'exécution*, et un seul run *en attente*. Rien de plus.
+Par défaut, un groupe de concurrence n'est pas une file d'attente illimitée : c'est un emplacement qui contient **au plus deux runs**, un run *en cours d'exécution* et un seul run *en attente*. Rien de plus — et ce comportement par défaut est le cœur du piège. GitHub permet bien, depuis mai 2026, d'activer une vraie file d'attente ; j'y reviens plus bas.
 
-Quand un nouveau run arrive dans un groupe déjà occupé, GitHub applique une règle simple : le run en attente actuel est **évincé** au profit du nouveau. Il ne passe pas après — il est purement et simplement annulé, sans jamais avoir tourné.
+Quand un nouveau run arrive dans un groupe déjà occupé, GitHub applique par défaut une règle simple : le run en attente actuel est **évincé** au profit du nouveau. Il ne passe pas après — il est purement et simplement annulé, sans jamais avoir tourné.
 
 Déroulons le scénario qui fait mal. Vous poussez huit commits rapprochés sur `main`, chacun déclenche le workflow de déploiement, et tout ce petit monde atterrit dans le même groupe :
 
@@ -34,7 +34,7 @@ concurrency:
 
 C'est parfait quand un déploiement en cours devient inutile à la seconde où un plus récent apparaît — typiquement le déploiement d'un site statique, où seul le dernier build compte. Pourquoi finir un déploiement périmé ?
 
-Le danger arrive quand le run fait des étapes **non idempotentes et non rejouables** en cours de route : une migration de base de données, une publication d'assets, un tag de release, un appel à une API tierce qui facture. Si `cancel-in-progress: true` coupe le job entre deux migrations, vous vous retrouvez avec un schéma à moitié appliqué et aucun run pour finir le travail. L'annulation ne fait pas de rollback : elle envoie un `SIGTERM` et passe à la suite.
+Le danger arrive quand le run fait des étapes **non idempotentes et non rejouables** en cours de route : une migration de base de données, une publication d'assets, un tag de release, un appel à une API tierce qui facture. Si `cancel-in-progress: true` coupe le job entre deux migrations, vous vous retrouvez avec un schéma à moitié appliqué et aucun run pour finir le travail. L'annulation ne fait pas de rollback : elle envoie un signal d'arrêt — un `SIGINT`, puis un `SIGTERM` si le process ne s'arrête pas de lui-même — et passe à la suite.
 
 ## `cancel-in-progress: false` : le piège du « tout passera »
 
@@ -68,7 +68,18 @@ concurrency:
 
 En passant de `github.ref` à `github.sha`, chaque commit obtient **son propre groupe de concurrence**. Comme un groupe ne contient jamais qu'un seul run par SHA, plus personne n'évince personne : les runs ne se marchent plus dessus et chacun s'exécute jusqu'au bout. Vous ne sérialisez plus « la branche » globalement, vous garantissez qu'un même commit ne se déploie pas deux fois en parallèle, tout en laissant tous les commits passer.
 
-Attention à la contrepartie honnête : avec `github.sha`, les déploiements peuvent alors se **chevaucher** entre commits différents, puisqu'ils sont dans des groupes distincts. Si vos migrations exigent un ordre strict et exclusif, ce n'est pas suffisant — il faut un verrou en amont (une file applicative, un environnement GitHub avec un seul déploiement concurrent, ou un job unique qui traite les commits en série). `concurrency` gère la déduplication, pas l'ordonnancement métier.
+Attention à la contrepartie honnête : avec `github.sha`, les déploiements peuvent alors se **chevaucher** entre commits différents, puisqu'ils sont dans des groupes distincts. Si vos migrations exigent un ordre strict et exclusif, ce n'est pas suffisant — il faut sérialiser les runs entre eux. `concurrency` gère la déduplication, pas l'ordonnancement métier.
+
+Justement, depuis mai 2026, GitHub propose une solution native à ce besoin de sérialisation stricte : le réglage `queue`. En le passant à `max` (avec `cancel-in-progress` à `false` ou absent), le groupe ne garde plus un seul run en attente mais en met jusqu'à 100 en file, exécutés **dans l'ordre**, chacun jusqu'au bout :
+
+```yaml
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+  queue: max
+```
+
+C'est le réglage qui colle vraiment au cas 2 : aucune éviction, un ordre strict, un seul déploiement à la fois. La bascule vers `github.sha` reste utile dans le cas inverse — laisser les commits se déployer en parallèle sans jamais s'annuler. Une limite subsiste : une fois la file pleine (100 runs en attente), les nouveaux arrivants sont à leur tour annulés.
 
 ## Un workflow complet pour GitHub Pages
 
@@ -123,10 +134,10 @@ Deux points de vigilance sur Pages :
 
 ## Ce qu'il faut retenir
 
-`concurrency` n'est pas une file d'attente : c'est **un run actif plus un seul run en attente**, et tout nouvel arrivant évince celui qui patientait.
+Par défaut, `concurrency` n'est pas une file d'attente : c'est **un run actif plus un seul run en attente**, et tout nouvel arrivant évince celui qui patientait — sauf si vous activez `queue: max`.
 
 1. **`cancel-in-progress: true`** : pour les déploiements idempotents où seul le dernier état compte. Dangereux si le run fait des étapes non rejouables à mi-chemin.
 2. **`cancel-in-progress: false`** : protège le run en cours, mais **ne sauve pas** les runs intermédiaires en attente. Ce n'est pas « tout passera ».
-3. **`group: ${{ github.sha }}`** : pour que chaque commit ait son groupe et qu'aucun déploiement ne soit évincé — la bonne base quand les étapes sont ordonnées et non rejouables.
+3. **`queue: max`** (avec `cancel-in-progress: false`) : pour mettre les runs en file et les exécuter dans l'ordre, sans éviction — la bonne base quand les étapes sont ordonnées et non rejouables. À défaut, `group: ${{ github.sha }}` donne à chaque commit son propre groupe, mais laisse les déploiements se chevaucher.
 
 Choisissez le réglage à partir de l'idempotence réelle de votre déploiement, pas par copier-coller depuis un tuto. La question tient en une phrase : si deux déploiements se télescopent, est-ce que rejouer le dernier suffit, ou est-ce que chacun devait vraiment s'exécuter ? La réponse décide de votre bloc `concurrency`.

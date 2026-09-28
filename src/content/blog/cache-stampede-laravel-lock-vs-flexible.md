@@ -93,7 +93,7 @@ Aucune des deux solutions n'est gratuite.
 
 **`Cache::flexible` sert des données périmées, par conception.** C'est tout l'intérêt, mais aussi sa limite : pendant la fenêtre de péremption, vos utilisateurs voient une valeur qui peut dater de plusieurs minutes. Pour un compteur de vues ou un tableau de bord de tendances, personne ne s'en aperçoit. Pour un solde de compte ou un stock affiché juste avant un paiement, c'est inacceptable.
 
-**Le stale-while-revalidate dépend d'un driver capable de tâches différées et de verrous.** Concrètement, cela veut dire Redis (ou Memcached). Les drivers `file` et `database` n'offrent pas la même garantie de coordination entre processus : n'espérez pas reproduire ce comportement sur un cache fichier en production.
+**Le stale-while-revalidate s'appuie sur un verrou pour qu'un seul rafraîchissement parte.** Concrètement, il faut un driver dont le verrou est partagé entre les serveurs : Redis et Memcached, mais aussi `database` ou `dynamodb`. Le driver `file`, lui, pose un verrou local à la machine : n'espérez pas coordonner plusieurs serveurs avec un cache fichier en production.
 
 **Le verrou atomique ajoute de la latence pour les perdants.** Les processus qui n'obtiennent pas le verrou attendent — c'est le prix de la fraîcheur garantie. Sous très forte concurrence, `block` peut faire s'empiler des requêtes en attente ; il faut dimensionner le délai avec soin.
 
@@ -111,5 +111,5 @@ L'heuristique tient en une phrase : **`Cache::flexible` pour la lecture massive 
 Le *cache stampede* n'est pas un bug de votre code : c'est une propriété du cache-aside naïf qui ne se révèle que sous concurrence, en production, au pire moment. `Cache::remember` ne vous en protège pas.
 
 - **`Cache::lock`** sérialise le recalcul : un seul processus travaille, les autres attendent puis lisent la valeur fraîche. Relâchez le verrou dans un `finally`, et dimensionnez son délai d'expiration au-dessus de votre pire temps de calcul.
-- **`Cache::flexible`** (Laravel 11+) sert la valeur périmée et recalcule en arrière-plan : personne n'attend, au prix d'une fraîcheur relâchée. Réservé aux drivers qui le permettent, Redis en tête.
+- **`Cache::flexible`** (Laravel 11+) sert la valeur périmée et recalcule en arrière-plan : personne n'attend, au prix d'une fraîcheur relâchée. Réservé aux drivers à verrou partagé, Redis en tête.
 - **Avant les deux**, vérifiez qu'une simple augmentation de TTL ou un pré-calcul planifié ne suffit pas : la meilleure protection contre la ruée reste une clé qui n'expire jamais pour les lecteurs.

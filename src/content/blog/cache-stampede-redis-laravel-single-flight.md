@@ -157,7 +157,7 @@ La question honnête à se poser avant d'écrire une ligne de ce qui précède :
 - **Recalcul bon marché.** Si reconstruire la valeur coûte 5 ms, laisser 50 requêtes le faire en double n'écroulera personne. Le single-flight se réserve aux valeurs vraiment lourdes.
 - **Faible trafic.** Sans concurrence, pas de troupeau. Un site à quelques visiteurs simultanés n'a tout simplement pas le volume pour déclencher le phénomène.
 
-Enfin, un prérequis technique : tout ceci suppose un store qui gère les verrous atomiques. Redis et Memcached les fournissent ; le driver `file`, `array` ou `database` sans configuration adaptée, non. Vérifiez votre `CACHE_STORE` avant de compter sur `Cache::lock()`.
+Enfin, un prérequis technique : tout ceci suppose un store partagé qui gère les verrous atomiques. Laravel les prend en charge avec les drivers `redis`, `memcached`, `dynamodb`, `database` et `file` ; le driver `array`, purement en mémoire et propre à chaque process, ne coordonne rien d'un process à l'autre. Vérifiez votre `CACHE_STORE` avant de compter sur `Cache::lock()`.
 
 ## Ce qu'il faut retenir
 

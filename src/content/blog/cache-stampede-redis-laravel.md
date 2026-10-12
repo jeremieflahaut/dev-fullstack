@@ -28,7 +28,7 @@ Sur une plateforme métier interne, ce genre de clé — le tableau de bord que 
 
 ## Première parade : un verrou atomique
 
-L'idée est simple : au moment du *miss*, une seule requête doit avoir le droit de recalculer. Les autres attendent qu'elle ait fini, puis récupèrent la valeur fraîche qu'elle vient de poser. Redis (ou Memcached) rend ça possible avec un **verrou atomique** — `Cache::lock()` — car ces drivers garantissent qu'un seul client obtient le verrou à un instant donné. Le driver de cache par fichier ou base ne convient pas ici.
+L'idée est simple : au moment du *miss*, une seule requête doit avoir le droit de recalculer. Les autres attendent qu'elle ait fini, puis récupèrent la valeur fraîche qu'elle vient de poser. Redis (ou Memcached) rend ça possible avec un **verrou atomique** — `Cache::lock()` — car ces drivers garantissent qu'un seul client obtient le verrou à un instant donné. Les drivers `database`, `dynamodb` et fichier le supportent aussi, mais pour coordonner plusieurs serveurs derrière un load balancer, c'est un store central comme Redis qu'on choisit.
 
 ```php
 use Illuminate\Support\Facades\Cache;
@@ -102,7 +102,7 @@ Pour aller plus loin, l'écosystème propose des approches probabilistes — rec
 Le cache stampede n'est pas un bug de Laravel : c'est une conséquence logique d'une expiration synchrone sans coordination. `Cache::remember()` fait son travail ; il ne fait simplement pas *celui-là*.
 
 - Le problème ne concerne que les clés **à la fois chaudes et coûteuses** — repérez-les, ignorez le reste.
-- **Verrou atomique** (`Cache::lock` + `block` + double-check) quand l'exactitude prime : une seule requête recalcule, les autres attendent la valeur fraîche. Exige Redis ou Memcached, et un TTL de verrou plus long que le calcul.
+- **Verrou atomique** (`Cache::lock` + `block` + double-check) quand l'exactitude prime : une seule requête recalcule, les autres attendent la valeur fraîche. S'appuie sur un driver à verrous — Redis ou Memcached en pratique — et un TTL de verrou plus long que le calcul.
 - **`Cache::flexible()`** quand la latence prime et qu'un peu de périmé est tolérable : on sert l'ancienne valeur, un seul process régénère en différé.
 - Pour tout le reste, `Cache::remember()` suffit — n'ajoutez pas de verrou là où il n'y a pas de rafale.
 

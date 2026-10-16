@@ -99,10 +99,10 @@ La chaîne est maintenant déterministe : MySQL devient `healthy`, `migrate` s'e
 
 ## Honnêteté technique : depends_on ne joue qu'au démarrage
 
-Voici le point que la plupart des tutoriels passent sous silence, et c'est le plus important. `depends_on` ne gouverne que l'**ordre de démarrage initial**. Il ne fait rien d'autre. Concrètement :
+Voici le point que la plupart des tutoriels passent sous silence, et c'est le plus important. `depends_on` ne gouverne par défaut que l'**ordre de démarrage initial**. Concrètement :
 
-- Si MySQL redémarre en cours de vie — un `restart`, un `OOM kill`, une mise à jour —, Compose ne redémarre pas `app` pour autant, et ne réattend pas que MySQL redevienne `healthy`.
-- `depends_on` est **ignoré** par `docker compose up` d'un seul service (`docker compose up app` ne démarre pas `mysql`), et il n'est pas honoré de la même façon en mode Swarm.
+- Si MySQL redémarre en cours de vie — un `restart`, un `OOM kill`, une mise à jour —, Compose ne redémarre pas `app` pour autant par défaut, et ne réattend pas que MySQL redevienne `healthy`. L'option `restart: true` dans `depends_on` couvre un `docker compose restart` ou une mise à jour explicites, mais pas un crash relancé par la politique de redémarrage du conteneur.
+- `depends_on` peut être court-circuité : `docker compose up --no-deps app` démarre `app` sans lancer ni attendre `mysql`, et il n'est pas honoré de la même façon en mode Swarm.
 - En production, votre base vit sur un serveur géré, pas dans le même Compose. `depends_on` ne s'applique tout simplement pas.
 
 La conclusion est inévitable : **il faut quand même une reconnexion côté application.** Un démarrage ordonné règle le premier boot, pas la résilience. Laravel sait reprendre une connexion perdue entre deux requêtes, mais un worker de queue long-vivant qui perd MySQL doit échouer proprement et réessayer. Vous pouvez borner les tentatives initiales sur une connexion fragile :

@@ -28,7 +28,7 @@ Voici les écarts que j'ai vus passer en vrai, du plus fréquent au plus sournoi
 
 **Le mode strict.** MySQL 8 tourne en mode strict par défaut. Une valeur trop longue pour sa colonne, un entier hors plage, une date invalide : MySQL rejette avec une erreur. SQLite, lui, est permissif — son typage est dynamique, il range à peu près n'importe quoi dans n'importe quelle colonne. Même famille de problème avec `ONLY_FULL_GROUP_BY` : un `GROUP BY` qui sélectionne une colonne non agrégée et non groupée passe sous SQLite mais est refusé net par MySQL.
 
-**Les requêtes JSON.** Les deux moteurs savent stocker du JSON, mais pas l'interroger pareil. `whereJsonContains()` n'est pas supporté par SQLite ; certains chemins d'accès JSON renvoient des résultats différents. Un test qui exerce une recherche dans une colonne JSON peut être vert faute d'exécuter réellement le bon chemin.
+**Les requêtes JSON.** Les deux moteurs savent stocker du JSON, mais pas l'interroger pareil. Passer un tableau de valeurs à `whereJsonContains()` n'est supporté que sous MariaDB, MySQL et PostgreSQL, pas sous SQLite ; certains chemins d'accès JSON renvoient des résultats différents. Un test qui exerce une recherche dans une colonne JSON peut être vert faute d'exécuter réellement le bon chemin.
 
 **Les types de clés étrangères.** MySQL exige que la clé étrangère et la clé référencée aient exactement le même type : une `foreignUuid` en `char(36)` pointant vers un `bigint` échoue à la création de la contrainte (le fameux `errno 150`). SQLite ne vérifie pas la correspondance des types. Une migration bancale passe donc les tests et casse au premier `migrate` sur MySQL.
 
